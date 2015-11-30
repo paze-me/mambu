@@ -8,6 +8,7 @@ loan_transactions_metadata = data.load_yaml('loan_transactions')
 
 class LoanTransactionsAPI(AbstractAPI):
     url = 'loans'
+    sub_url = 'transactions'
 
     def get(self, loan_id):
         """Get details of the loan transactions i.e. statement associated with
@@ -22,7 +23,7 @@ class LoanTransactionsAPI(AbstractAPI):
         -------
         dict
         """
-        return self._request('get', self._loan_trans_url(loan_id))
+        return self._get(self._postfix_url(self.url, loan_id, self.sub_url))
 
     def post(self, loan_id, loan_transaction=None):
         """Send a post request containing the loan_transaction information to
@@ -40,8 +41,8 @@ class LoanTransactionsAPI(AbstractAPI):
         -------
         dict
         """
-        return self._request('post', self._loan_trans_url(loan_id),
-                             data=loan_transaction)
+        return self._post(self._postfix_url(self.url, loan_id, self.sub_url),
+                          data=loan_transaction)
 
     def approve(self, loan_id):
         """Approve the loan associated with loan_id.  For this to succeed the
@@ -180,18 +181,22 @@ class LoanTransactionsAPI(AbstractAPI):
         else:
             date = datelib.mambu_date(date)
             result = self.post(
-                loan_id, self.LoanTransaction(type='FEE', amount=amount, date=date))
+                loan_id, self.LoanTransaction(
+                    type='FEE', amount=amount, date=date))
         return result
 
     def repayment(self, loan_id, amount, date=None, method=None, notes=None):
         return self.post(loan_id, self.LoanTransaction(
-            type='REPAYMENT', amount=amount, date=date, method=method, notes=None))
+            type='REPAYMENT', amount=amount, date=date, method=method,
+            notes=notes))
 
     def disburse(self, loan_id):
+        #  This spelling mistake is intentional and is present in mambu
         return self.post(loan_id, self.LoanTransaction(
             type='DISBURSMENT'))
 
     def undo_disburse(self, loan_id):
+        #  This spelling mistake is intentional and is present in mambu
         return self.post(loan_id, self.LoanTransaction(
             type='DISBURSMENT_ADJUSTMENT'))
 
@@ -215,10 +220,6 @@ class LoanTransactionsAPI(AbstractAPI):
         dict
         """
         return [self.disburse(loan_id), self.apply_fee(loan_id, fee, date)]
-
-    def _loan_trans_url(self, loan_id):
-        url_ = '%s/%s/transactions' % (self.url, loan_id)
-        return url_
 
     class LoanTransaction(AbstractDataObject):
         fields = loan_transactions_metadata['parameters']

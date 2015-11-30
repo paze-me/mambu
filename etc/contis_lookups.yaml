@@ -1,0 +1,31 @@
+Withdrawal Type Lookup:
+  01:
+    - Future Dated Bank Transfer(up to 3 days)
+    - Use for Bank Withdrawal method and Standing Order methods. For UK Bank Transfer Only
+  02:
+    - Same Day Bank Transfer (CHAPS)
+    - Use for Bank Withdrawal method and Standing Order methods. For UK Bank Transfer Only
+  04:
+   - International Regular
+   - Use for Bank Withdrawal method and SO methods. For International Bank Transfer Only
+  05:
+    - International Urgent
+    - Use for Bank Withdrawal method and SO methods. For International Bank Transfer Only
+  06:
+    - Next Day Bank Transfer (BACS)
+    - Use for Bank Withdrawal method and SO methods. For UK Bank Transfer Only
+  99:
+    - Internal_Transfer
+    - for Standing Order Methods Only.
+  100:
+    - ThirdParty_Transfer
+    - for Standing Order Methods Only.
+Relationship Lookup:
+  01:
+  	- Self
+  02:
+  	- Family
+  03:
+  	- Friend
+  04:
+  	- Colleague

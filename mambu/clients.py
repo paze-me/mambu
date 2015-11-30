@@ -36,7 +36,7 @@ class ClientsAPI(AbstractAPI):
         Parameters
         ----------
         client_id: int, str
-            if or encodedKey for client in mambu
+            if or encodedKey for client in nginxmambu
 
         Returns
         -------

@@ -1,6 +1,10 @@
 from util import *
 import base64
 
+from tools import data
+
+entities = data.load_yaml('attachments', 'entities')
+
 
 class AttachmentsAPI(AbstractAPI):
 
@@ -76,12 +80,7 @@ class AttachmentsAPI(AbstractAPI):
         -------
         dict
         """
-        entities = ['clients', 'groups', 'savings', 'loans', 'savingsProducts',
-                    'loanProducts', 'branches', 'centres', 'users']
         if entity not in entities:
             raise Exception('{} not found.  Must be one of {}'.format(
                 entity, entities))
         return self._postfix_url(entity, entity_id, self.url)
-
-    class Document:
-        fields = ['documentHolderKey', 'documentHolderType', 'name', 'type']

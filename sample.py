@@ -26,7 +26,7 @@ try:
     val = api.SavingsTransactions.get(val[0]['encodedKey'])
     print val
     
-    val = api.Attachments.getForClient(cl[0]['encodedKey'])
+    val = api.Attachments.get_by_client(cl[0]['encodedKey'])
     print val
     
     val = api.CustomFields.get_sets('CLIENT_INFO')

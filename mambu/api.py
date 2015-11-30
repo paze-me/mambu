@@ -2,7 +2,7 @@ from clients import ClientsAPI
 from loans import LoansAPI
 from savings import SavingsAPI
 from loan_transaction import LoanTransactionsAPI
-from savings_transaction import SavingsTransactionsAPI
+from savings_transactions import SavingsTransactionsAPI
 from attachments import AttachmentsAPI
 from custom_fields import CustomFieldsAPI
 from loan_products import LoanProductsAPI

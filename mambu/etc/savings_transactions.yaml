@@ -1,0 +1,15 @@
+transactions:
+  type
+  amount
+  toSavingsAccount
+  toLoanAccount
+  date
+  method
+  identifier
+  accountName
+  receiptNumber
+  bankNumber
+  checkNumber
+  bankAccountNumber
+  bankRoutingNumber
+  notes

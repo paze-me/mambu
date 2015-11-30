@@ -6,14 +6,14 @@ import pytest
 def test_attachments_for_client(mambuapi):
     clients = mambuapi.Clients.get(None)
     if len(clients) > 0:
-        assert(mambuapi.Attachments.getForClient(clients[0]['id']) is not None)
+        assert(mambuapi.Attachments.get_by_client(clients[0]['id']) is not None)
 
 
 @pytest.mark.slow
 def test_attachment_for_savings(mambuapi):
     savings = mambuapi.Savings.get()
     if len(savings) > 0:
-        assert(mambuapi.Attachments.getForSaving(savings[0]['id']) is not None)
+        assert(mambuapi.Attachments.get_by_savings_id(savings[0]['id']) is not None)
 
 
 @pytest.mark.slow
@@ -33,7 +33,7 @@ def test_attachments_for_user(mambuapi):
 def test_create_and_delete_attachment(mambuapi):
     clients = mambuapi.Clients.get(None)
     if len(clients) > 0:
-        before_create = len(mambuapi.Attachments.getForClient(clients[0]['id']))
+        before_create = len(mambuapi.Attachments.get_by_client(clients[0]['id']))
         document = {
             "documentHolderKey": clients[0]['encodedKey'],
             "documentHolderType": "CLIENT",
@@ -41,13 +41,13 @@ def test_create_and_delete_attachment(mambuapi):
             "type": "txt"
         }
         content = "test"
-        doc = mambuapi.Attachments.create(document, content)
-        after_create = len(mambuapi.Attachments.getForClient(clients[0]['id']))
+        doc = mambuapi.Attachments.post(document, content)
+        after_create = len(mambuapi.Attachments.get_by_client(clients[0]['id']))
         # Check successful creation
         assert(before_create + 1 == after_create)
 
-        attachments = mambuapi.Attachments.getForClient(clients[0]['id'])
+        attachments = mambuapi.Attachments.get_by_client(clients[0]['id'])
         mambuapi.Attachments.delete(doc['encodedKey'])
-        after_delete = len(mambuapi.Attachments.getForClient(clients[0]['id']))
+        after_delete = len(mambuapi.Attachments.get_by_client(clients[0]['id']))
         # Check successful deletion
         assert(after_create - 1 == after_delete)

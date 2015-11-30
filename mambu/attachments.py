@@ -5,103 +5,37 @@ import base64
 class AttachmentsAPI(AbstractAPI):
     url = 'documents'
 
-    def get(self, id):
-        """
-        Parameters:
-          id : integer or string
-        """
-        return self._request('get', self._documents_url(id))
+    def get(self, attachment_id):
+        return self._request('get', self._documents_url(attachment_id))
 
-    def getForClient(self, id):
-        """
-        Parameters:
-          id : integer or string
-        """
-        return self._request('get', self._documents_entity_url('clients', id))
+    def _get(self, url):
+        return self._request('get', url)
 
-    def getForGroup(self, id):
-        """
-        Parameters:
-          id : integer or string
-        """
-        return self._request('get', self._documents_entity_url('groups', id))
-
-    def getForSaving(self, id):
-        """
-        Parameters:
-          id : integer or string
-        """
-        return self._request('get', self._documents_entity_url('savings', id))
-
-    def getForLoan(self, id):
-        """
-        Parameters:
-          id : integer or string
-        """
-        return self._request('get', self._documents_entity_url('loans', id))
-
-    def getForSavingProduct(self, id):
-        """
-        Parameters:
-          id : integer or string
-        """
-        return self._request('get',
-                             self._documents_entity_url('savingsProducts', id))
-
-    def getForLoanProduct(self, id):
-        """
-        Parameters:
-          id : integer or string
-        """
-        return self._request('get',
-                             self._documents_entity_url('loanProducts', id))
-
-    def getForBranch(self, id):
-        """
-        Parameters:
-          id : integer or string
-        """
-        return self._request('get', self._documents_entity_url('branches', id))
-
-    def getForCenter(self, id):
-        """
-        Parameters:
-          id : integer or string
-        """
-        return self._request('get', self._documents_entity_url('centres', id))
-
-    def getForUser(self, id):
-        """
-        Parameters:
-          id : integer or string
-        """
-        return self._request('get', self._documents_entity_url('users', id))
-
-    def create(self, document, documentContent):
-        """
-        Parameters:
-          document : Document
-          documentContent: string
-        """
+    def post(self, document, document_content):
         return self._request(
             'post', self._documents_url(), dict(
                 document=document,
-                documentContent=base64.b64encode(documentContent)))
+                documentContent=base64.b64encode(document_content)))
 
-    def delete(self, id):
-        """
-        Parameters:
-          id: integer or string
-        """
-        return self._request('delete', self._documents_url(id))
+    def get_by_entity(self, entity, entity_id):
+        entities = ['clients', 'groups', 'savings', 'loans', 'savingsProducts',
+                    'loanProducts', 'branches', 'centres', 'users']
+        if entity not in entities:
+            raise Exception('{} not found.  Must be one of {}'.format(
+                entity, entities))
+        return self._get('{}/{}/{}'.format(entity, entity_id, self.url))
+
+    def delete(self, attachment_id):
+        return self._request('delete', self._documents_url(attachment_id))
         
-    def _documents_url(self, id=None):
+    def _documents_url(self, document_id=None):
         url_ = self.url
-        if id: url_ += '/' + str(id)
+        if document_id:
+            url_ += '/{}'.format(document_id)
         return url_
 
-    def _documents_entity_url(self, entity, id):
-        url_ = entity + '/' + str(id) + '/' + self.url
+    def _entity_url(self, entity, entity_id):
+        url_ = '{}/{}/{}'.format(entity, entity_id, self.url)
         return url_
         
     class Document:

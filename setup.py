@@ -10,4 +10,7 @@ setup(
     author_email='hansel.dunlop@paze.me',
     url='https://www.mambu.com',
     packages=['mambu'],
+    install_requires=[
+        'requests'
+    ]
 )

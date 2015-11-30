@@ -2,11 +2,8 @@ from mambu.tools import data
 from tools import datelib
 from util import AbstractAPI, AbstractDataObject
 
+
 loan_transactions_metadata = data.load_yaml('loan_transactions.yaml')
-
-from tools import data
-
-loan_transactions_metadata = data.load_yaml('loan_transactions')
 
 
 class LoanTransactionsAPI(AbstractAPI):

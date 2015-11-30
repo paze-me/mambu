@@ -3,6 +3,7 @@ import base64
 from mambu.tools import data
 from util import *
 
+
 entities = data.load_yaml('attachments.yaml', 'entities')
 
 

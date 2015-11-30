@@ -1,7 +1,5 @@
 import pytest
 
-import process_loans
-
 
 @pytest.mark.slow
 def test_transactions(mambuapi):
@@ -111,54 +109,3 @@ def test_disburse_today(mambuapi, mambu_approved_loan_start_today):
     loan_after = mambuapi.Loans.get(loan_id)
     assert float(mambu_approved_loan_start_today['principalBalance']
                  ) + float(result['balance']) == float(loan_after['principalBalance'])
-
-
-@pytest.mark.slow
-def test_whole_disbursement_process(
-        mambuapi, simple_contis_api, mambu_approved_loan_start_today,
-        contis_from_mambu_encoded):
-    loan_id = mambu_approved_loan_start_today['id']
-    contis_result, mambu_result = process_loans.whole_disbursement_process(
-        mambuapi, simple_contis_api, contis_from_mambu_encoded, loan_id)
-    assert len(mambu_result) == 1
-    assert len(contis_result) == 1
-    assert contis_result[0]['response_code'] == '000'
-    tranche = mambuapi.Loans.get(loan_id)['tranches'][0]
-    assert 'disbursementTransactionKey' in tranche
-
-
-@pytest.mark.slow
-def test_whole_repayment_process(
-        mambuapi, simple_contis_api, mambu_approved_loan,
-        contis_from_mambu_encoded):
-    loan_id = mambu_approved_loan['id']
-    repayment_date = mambu_approved_loan['firstRepaymentDate']
-    contis_result, mambu_result = process_loans.whole_repayment_process(
-        mambuapi, simple_contis_api, contis_from_mambu_encoded, loan_id,
-        repayment_date)
-
-
-@pytest.mark.slow
-def test_whole_process_with_contis(mambuapi, simple_contis_api, user_in_mambu,
-                                   mambu_approved_loan, contis_user_with_mambu):
-    loan_id = mambu_approved_loan['id']
-    contis_id = contis_user_with_mambu.AccountNumber
-    _contis_from_mambu_encoded = lambda x: contis_id
-    tranches = mambu_approved_loan['tranches']
-    fee = 4
-    for tranche in tranches:
-        datestr = tranche['expectedDisbursementDate']
-        contis_result, mambu_result = process_loans.whole_disbursement_process(
-            mambuapi, simple_contis_api, _contis_from_mambu_encoded,
-            loan_id, datestr)
-    # fake "spent all the money on contis card"
-    simple_contis_api.withdraw_money(
-        contis_id, 100 * float(mambu_approved_loan['loanAmount']))
-    # fake "payday to contis"
-    simple_contis_api.load_money(contis_id, 100 * (
-        fee * len(tranches) + float(mambu_approved_loan['loanAmount'])))
-    repayment_date = mambu_approved_loan['firstRepaymentDate']
-    contis_result, mambu_result = process_loans.whole_repayment_process(
-        mambuapi, simple_contis_api, _contis_from_mambu_encoded, loan_id,
-        repayment_date)
-    print 'loan_id %s, contis_id %s' % (loan_id, contis_id)

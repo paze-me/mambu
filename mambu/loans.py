@@ -1,8 +1,8 @@
-from util import AbstractAPI, AbstractDataObject
-from tools import datelib
 import logging
 
-from etc.data import load_yaml
+from tools import datelib
+from tools.data import load_yaml
+from util import AbstractAPI, AbstractDataObject
 
 loans_metadata = load_yaml('loans.yaml')
 logger = logging.getLogger(__name__)

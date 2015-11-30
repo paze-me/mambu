@@ -1,6 +1,7 @@
-from util import *
-from etc.data import load_yaml
 import threading
+
+from tools.data import load_yaml
+from util import *
 
 client_metadata = load_yaml('clients.yaml')
 

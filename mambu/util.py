@@ -16,11 +16,22 @@ class AbstractAPI(object):
         headers = {'Content-Type': 'application/json'} if data else {}
         dataStr = self.json_encoder.encode(data)
         logging.debug("Body: " + dataStr)
-        response = getattr(requests, method)(self.base_url + url, headers=headers, params=params, data=dataStr,
-                                             auth=(self.api.config.username, self.api.config.password))
+        response = getattr(requests, method)(
+            self.base_url + url, headers=headers, params=params, data=dataStr,
+            auth=(self.api.config.username, self.api.config.password))
         if response.status_code != 200 and response.status_code != 201:
-            raise MambuAPIException("Error performing the request", response.status_code, response.json())
+            raise MambuAPIException("Error performing the request",
+                                    response.status_code, response.json())
         return response.json()
+
+    def _get(self, url, params=None, data=None):
+        return self._request('get', url, params, data)
+
+    def _post(self, url, params=None, data=None):
+        return self._request('post', url, params, data)
+
+    def _postfix_url(self, *args):
+        return '/'.join(args)
 
     @staticmethod
     def _filter_params(kw, allowed):

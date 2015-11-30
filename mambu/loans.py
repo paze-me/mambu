@@ -326,10 +326,6 @@ class LoansAPI(AbstractAPI):
         datestr = datelib.mambu_date(datelib.date_today())
         return self.get_disbursements_due_on_date(datestr)
 
-    # def get_disbursements_due_on_date(self, datestr):
-    #     return self.get_loans_by_filter_field(
-    #         'EXPECTED_DISBURSEMENT_DATE', 'ON', datestr)
-
     def get_disbursements_due_on_date(self, datestr):
         result = []
         loans = self.get()

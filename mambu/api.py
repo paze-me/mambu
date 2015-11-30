@@ -19,3 +19,18 @@ class API(object):
         self.Attachments = AttachmentsAPI(self)
         self.CustomFields = CustomFieldsAPI(self)
         self.LoanProducts = LoanProductsAPI(self)
+
+    def get_client(self, client_id=None):
+        return self.Clients.get(client_id)
+
+    def get_loan(self, loan_id=None):
+        return self.Loans.get(loan_id)
+
+    def get_saving(self, saving_id):
+        return self.Savings.get(saving_id)
+
+    def get_attachment(self, attachment_id=None):
+        return self.Attachments.get(attachment_id)
+
+    def get_loan_product(self, loan_product_id=None):
+        return self.LoanProducts.get(loan_product_id)

@@ -1,6 +1,7 @@
 from util import *
 import base64
 
+
 class AttachmentsAPI(AbstractAPI):
     url = 'documents'
 
@@ -11,14 +12,14 @@ class AttachmentsAPI(AbstractAPI):
         """
         return self._request('get', self._documents_url(id))
 
-    def getForClient(self,id):
+    def getForClient(self, id):
         """
         Parameters:
           id : integer or string
         """
         return self._request('get', self._documents_entity_url('clients', id))
 
-    def getForGroup(self,id):
+    def getForGroup(self, id):
         """
         Parameters:
           id : integer or string
@@ -32,42 +33,44 @@ class AttachmentsAPI(AbstractAPI):
         """
         return self._request('get', self._documents_entity_url('savings', id))
 
-    def getForLoan(self,id):
+    def getForLoan(self, id):
         """
         Parameters:
           id : integer or string
         """
         return self._request('get', self._documents_entity_url('loans', id))
 
-    def getForSavingProduct(self,id):
+    def getForSavingProduct(self, id):
         """
         Parameters:
           id : integer or string
         """
-        return self._request('get', self._documents_entity_url('savingsProducts', id))
+        return self._request('get',
+                             self._documents_entity_url('savingsProducts', id))
 
-    def getForLoanProduct(self,id):
+    def getForLoanProduct(self, id):
         """
         Parameters:
           id : integer or string
         """
-        return self._request('get', self._documents_entity_url('loanProducts', id))
+        return self._request('get',
+                             self._documents_entity_url('loanProducts', id))
 
-    def getForBranch(self,id):
+    def getForBranch(self, id):
         """
         Parameters:
           id : integer or string
         """
         return self._request('get', self._documents_entity_url('branches', id))
 
-    def getForCenter(self,id):
+    def getForCenter(self, id):
         """
         Parameters:
           id : integer or string
         """
         return self._request('get', self._documents_entity_url('centres', id))
 
-    def getForUser(self,id):
+    def getForUser(self, id):
         """
         Parameters:
           id : integer or string
@@ -80,7 +83,10 @@ class AttachmentsAPI(AbstractAPI):
           document : Document
           documentContent: string
         """
-        return self._request('post', self._documents_url(), data = {'document' : document, 'documentContent' : base64.b64encode(documentContent)})
+        return self._request(
+            'post', self._documents_url(), dict(
+                document=document,
+                documentContent=base64.b64encode(documentContent)))
 
     def delete(self, id):
         """
@@ -89,7 +95,7 @@ class AttachmentsAPI(AbstractAPI):
         """
         return self._request('delete', self._documents_url(id))
         
-    def _documents_url(self,id = None):
+    def _documents_url(self, id=None):
         url_ = self.url
         if id: url_ += '/' + str(id)
         return url_
@@ -99,4 +105,4 @@ class AttachmentsAPI(AbstractAPI):
         return url_
         
     class Document:
-        fields = ['documentHolderKey','documentHolderType','name','type']
+        fields = ['documentHolderKey', 'documentHolderType', 'name', 'type']

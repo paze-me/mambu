@@ -1,6 +1,6 @@
 import threading
 
-from tools.data import load_yaml
+from mambu.tools.data import load_yaml
 from util import *
 
 client_metadata = load_yaml('clients.yaml')

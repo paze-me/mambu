@@ -1,6 +1,6 @@
 import pytest
 
-from tools import datelib
+from mambu.tools import datelib
 
 
 @pytest.mark.slow

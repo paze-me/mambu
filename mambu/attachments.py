@@ -1,9 +1,9 @@
-from util import *
 import base64
 
-from tools import data
+from mambu.tools import data
+from util import *
 
-entities = data.load_yaml('attachments', 'entities')
+entities = data.load_yaml('attachments.yaml', 'entities')
 
 
 class AttachmentsAPI(AbstractAPI):

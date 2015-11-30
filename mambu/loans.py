@@ -1,7 +1,7 @@
 import logging
 
+from mambu.tools.data import load_yaml
 from tools import datelib
-from tools.data import load_yaml
 from util import AbstractAPI, AbstractDataObject
 
 loans_metadata = load_yaml('loans.yaml')
@@ -336,8 +336,8 @@ class LoansAPI(AbstractAPI):
         _date = datelib.coerce_date(datestr)
         for loan in loans:
             pending_tranches = [t for t in loan['tranches']
-                if 'disbursementTransactionKey' not in t
-                and datelib.coerce_date(t['expectedDisbursementDate']) == _date]
+                                if 'disbursementTransactionKey' not in t
+                                and datelib.coerce_date(t['expectedDisbursementDate']) == _date]
             if len(pending_tranches) == 1:
                 tranche = pending_tranches[0]
                 amount = float(tranche['amount'])

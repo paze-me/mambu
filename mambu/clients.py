@@ -266,11 +266,3 @@ class ClientsAPI(AbstractAPI):
 
     class IdDocument(AbstractDataObject):
         fields = client_metadata['id_document']
-
-    def client_from_user_profile(self, user, profile):
-        client = self.Client(
-            firstName=user.firstname, middleName=user.middlename,
-            lastName=user.lastname, emailAddress=user.email,
-            birthDate=profile.dob.strftime('%Y-%m-%d'),
-            mobilePhone1=profile.mobile)
-        return client

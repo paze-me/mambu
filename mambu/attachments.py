@@ -25,8 +25,8 @@ class AttachmentsAPI(AbstractAPI):
         """
         return self._get(self._postfix_url(document_id))
 
-    def post(self, document_holder_key, document_holder_type, name,
-             document_type, document_content):
+    def create(self, document_holder_key, document_holder_type, name,
+               document_type, document_content):
         """Upload the document with content document_content
 
         Parameters

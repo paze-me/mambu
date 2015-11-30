@@ -41,7 +41,7 @@ def test_create_and_delete_attachment(mambuapi):
             "type": "txt"
         }
         content = "test"
-        doc = mambuapi.Attachments.post(document, content)
+        doc = mambuapi.Attachments.create(document, content)
         after_create = len(mambuapi.Attachments.get_by_client(clients[0]['id']))
         # Check successful creation
         assert(before_create + 1 == after_create)

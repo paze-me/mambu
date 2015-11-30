@@ -4,6 +4,10 @@ from util import AbstractAPI, AbstractDataObject
 
 loan_transactions_metadata = data.load_yaml('loan_transactions.yaml')
 
+from tools import data
+
+loan_transactions_metadata = data.load_yaml('loan_transactions')
+
 
 class LoanTransactionsAPI(AbstractAPI):
     url = 'loans'

@@ -1,6 +1,10 @@
 from util import AbstractAPI, AbstractDataObject
 from tools import datelib
 
+from tools import data
+
+loan_transactions_metadata = data.load_yaml('loan_transactions')
+
 
 class LoanTransactionsAPI(AbstractAPI):
     url = 'loans'
@@ -140,14 +144,15 @@ class LoanTransactionsAPI(AbstractAPI):
         loan_id: str
             id for the loan in mambu
         transaction_type: str
-            one of 'APPROVAL', 'UNDO_APPROVAL', 'WITHDRAW', 'REJECT', 'LOCK', 'UNLOCK'
+            one of 'APPROVAL', 'UNDO_APPROVAL', 'WITHDRAW', 'REJECT', 'LOCK',
+            'UNLOCK'
 
         Returns
         -------
         dict
         """
-        if transaction_type not in ['APPROVAL', 'UNDO_APPROVAL', 'WITHDRAW',
-                                    'REJECT', 'LOCK', 'UNLOCK']:
+        if transaction_type not in \
+                loan_transactions_metadata['transaction_types']:
             return 'Invalid transaction Type'
         return self.post(loan_id, self.LoanTransaction(type=transaction_type))
 
@@ -216,7 +221,5 @@ class LoanTransactionsAPI(AbstractAPI):
         return url_
 
     class LoanTransaction(AbstractDataObject):
-        fields = ['type', 'amount', 'date', 'repayment', 'method', 'identifier',
-                  'accountName', 'receiptNumber', 'bankNumber', 'checkNumber',
-                  'bankAccountNumber', 'bankRoutingNumber', 'notes']
+        fields = loan_transactions_metadata['parameters']
 

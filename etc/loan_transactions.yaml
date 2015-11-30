@@ -1,0 +1,21 @@
+parameters:
+  type
+  amount
+  date
+  repayment
+  method
+  identifier
+  accountName
+  receiptNumber
+  bankNumber
+  checkNumber
+  bankAccountNumber
+  bankRoutingNumber
+  notes
+transaction_type:
+  APPROVAL
+  UNDO_APPROVAL
+  WITHDRAW
+  REJECT
+  LOCK
+  UNLOCK

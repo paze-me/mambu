@@ -1,6 +1,8 @@
 class MambuAPIException(Exception):
     def __init__(self, message, code, status):
-        msg = message + ', code: ' + str(code) + ', return code: ' + str(status['returnCode']) + ', return status: ' + str(status['returnStatus'])
+        msg = '{}, code: {}, return code: {}, return status: {}'.format(
+            message, code, status.get('returnCode', ''),
+            status.get('returnStatus', ''))
         if 'errorSource' in status:
             msg += ', source: ' + str(status['errorSource'])
             self.error_source = status['errorSource']

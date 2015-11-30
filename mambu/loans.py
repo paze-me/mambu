@@ -41,7 +41,7 @@ class LoansAPI(AbstractAPI):
         -------
         dict
         """
-        return self.get(loan_id, params=self.GetLoanParams(fulldetails=True))
+        return self.get(loan_id, params=self.GetLoanParams(fullDetails=True))
 
     def get_for_client(self, client_id=None, params=None):
         """get the loan(s) associated with the client with client_id

@@ -12,7 +12,7 @@ parameters:
   bankAccountNumber
   bankRoutingNumber
   notes
-transaction_type:
+transaction_types:
   APPROVAL
   UNDO_APPROVAL
   WITHDRAW

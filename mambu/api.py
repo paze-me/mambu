@@ -34,3 +34,18 @@ class API(object):
 
     def get_loan_product(self, loan_product_id=None):
         return self.LoanProducts.get(loan_product_id)
+
+    def create_client(self, *args, **kwargs):
+        return self.Clients.create(*args, **kwargs)
+
+    def create_loan(self, *args, **kwargs):
+        return self.Loans.create(*args, **kwargs)
+
+    def approve_loan(self, loan_id):
+        return self.LoanTransactions.approve(loan_id)
+
+    def apply_fee(self, loan_id, amount, date):
+        return self.LoanTransactions.apply_fee(loan_id, amount, date)
+
+    def disburse(self, loan_id):
+        return self.LoanTransactions.disburse(loan_id)

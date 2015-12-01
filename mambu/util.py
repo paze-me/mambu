@@ -7,9 +7,13 @@ from exception import MambuAPIException
 
 
 class AbstractAPI(object):
-    def __init__(self, api_):
-        self.api = api_
-        self.base_url = 'https://' + api_.config.domain + '/api/'
+    def __init__(self, api_=None, config_=None):
+        if api_ is not None:
+            self.api = api_
+            self.config = api_.config
+        else:
+            self.config = config_
+        self.base_url = 'https://' + self.config.domain + '/api/'
         self.json_encoder = RequestJSONEncoder()
 
     def _request(self, method, url, params=None, data=None):
@@ -18,7 +22,7 @@ class AbstractAPI(object):
         logging.debug("Body: " + dataStr)
         response = getattr(requests, method)(
             self.base_url + url, headers=headers, params=params, data=dataStr,
-            auth=(self.api.config.username, self.api.config.password))
+            auth=(self.config.username, self.config.password))
         if response.status_code != 200 and response.status_code != 201:
             raise MambuAPIException("Error performing the request",
                                     response.status_code, response.json())
@@ -31,7 +35,7 @@ class AbstractAPI(object):
         return self._request('post', url, params, data)
 
     def _postfix_url(self, *args):
-        return '/'.join(args)
+        return '/'.join([arg for arg in args if arg is not None])
 
     @staticmethod
     def _filter_params(kw, allowed):

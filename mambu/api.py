@@ -9,7 +9,7 @@ from util import AbstractAPI
 
 class API(AbstractAPI):
     def __init__(self, config_):
-        super(API, self).__init__(config_)
+        super(API, self).__init__(config_=config_)
         self.config = config_
         self.Clients = ClientsAPI(self)
         self.Loans = LoansAPI(self)
@@ -67,4 +67,4 @@ class API(AbstractAPI):
             'savings', savings_id, 'transactions', transactions_id)
 
     def _url_loan_products(self, loan_product_id=None):
-        return self._postfix_url('loan_products', loan_product_id)
+        return self._postfix_url('loanproducts', loan_product_id)

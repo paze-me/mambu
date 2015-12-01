@@ -9,9 +9,10 @@ import base64
 from tools import datelib, data
 from exception import MambuAPIException
 
-client_metadata = data.load_yaml('clients.yaml')
-entities = data.load_yaml('attachments.yaml', 'entities')
-loans_metadata = data.load_yaml('loans.yaml')
+metadata = data.load_yaml('data.yaml')
+client_metadata = metadata['clients']
+entities = metadata['attachments']['entities']
+loans_metadata = metadata['loans']
 logger = logging.getLogger(__name__)
 
 

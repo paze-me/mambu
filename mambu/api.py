@@ -10,9 +10,6 @@ from tools import datelib, data
 from exception import MambuAPIException
 
 metadata = data.load_yaml('data.yaml')
-client_metadata = metadata['clients']
-entities = metadata['attachments']['entities']
-loans_metadata = metadata['loans']
 logger = logging.getLogger(__name__)
 
 
@@ -830,25 +827,25 @@ class API(object):
             index)
 
     class Client(AbstractDataObject):
-        fields = client_metadata['client']
+        fields = metadata['clients']['client']
 
     class GetClientParams(AbstractDataObject):
-        fields = client_metadata['parameters']
+        fields = metadata['clients']['parameters']
 
     class ClientCustomField(AbstractDataObject):
-        fields = client_metadata['custom_field']
+        fields = metadata['clients']['custom_field']
 
     class ClientAddress(AbstractDataObject):
-        fields = client_metadata['address']
+        fields = metadata['clients']['address']
 
     class ClientIdDocument(AbstractDataObject):
-        fields = client_metadata['id_document']
+        fields = metadata['clients']['id_document']
 
     class GetLoanParams(AbstractDataObject):
-        fields = loans_metadata['parameters']
+        fields = metadata['loans']['parameters']
 
     class Loan(AbstractDataObject):
-        fields = loans_metadata['fields']
+        fields = metadata['loans']['fields']
 
     class FilterField(AbstractDataObject):
-        fields = loans_metadata['loan_account_filter_values']
+        fields = metadata['loans']['loan_account_filter_values']

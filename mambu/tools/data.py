@@ -11,4 +11,4 @@ def load_yaml(filename, field=None):
 
 
 def etc_filepath(filename=None):
-    return os.path.join(os.path.dirname(__file__), filename)
+    return os.path.join(os.path.dirname(__file__), '..', 'etc', filename)

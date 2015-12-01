@@ -1,0 +1,220 @@
+clients:
+  parameters:
+    - fullDetails
+    - firstName
+    - lastName
+    - idDocument
+    - birthDate
+    - branchId
+    - centreId
+    - creditOfficerUsername
+    - state
+  client:
+    - firstName
+    - lastName
+    - middleName
+    - homePhone
+    - mobilePhone1
+    - mobilePhone2
+    - gender
+    - emailAddress
+    - birthDate
+    - notes
+    - assignedUserKey
+    - assignedBranchKey
+    - assignedCentreKey
+    - clientRole
+    - preferredLanguage
+  custom_field:
+    - customFieldID
+    - value
+    - customFieldSetGroupIndex
+  address:
+    - line1
+    - line2
+    - city
+    - region
+    - postcode
+    - country
+  id_document:
+    - documentType
+    - documentId
+    - issuingAuthority
+    - validUntil
+    - identificationDocumentTemplateKey
+loans:
+  fields:
+    - encodedKey
+    - id
+    - accountHolderKey
+    - accountHolderType
+    - productTypeKey
+    - loanAmount
+    - interestRate
+    - interestSpread
+    - repaymentInstallments
+    - loanName
+    - accountState
+    - repaymentPeriodCount
+    - repaymentPeriodUnit
+    - graceLength
+    - assignedBranchKey
+    - assignedCentreKey
+    - firstRepaymentDate
+    - anticipatedDisbursementDate
+    - notes
+    - gurantees
+    - guarantorKe
+    - amoun
+    - typ
+    - customFieldvalue
+  loan_account_filter_values:
+    - PRODUCT_KEY
+    - LOAN_NAME
+    - ACCOUNT_ID
+    - ACCOUNT_HOLDER_ID
+    - RECIPIENT
+    - CREATION_DATE
+    - APPROVAL_DATE
+    - LAST_MODIFIED_DATE
+    - DISBURSEMENT_DATE
+    - EXPECTED_DISBURSEMENT_DATE
+    - LAST_SET_TO_ARREARS_DATE
+    - LAST_LOCKED_DATE
+    - CLOSED_DATE
+    - DAYS_IN_ARREARS
+    - ACCOUNT_SUB_STATE
+    - ACCOUNT_STATE
+    - LOAN_AMOUNT
+    - DISBURSED_TRANCHES_AMOUNT
+    - NUM_INSTALLMENTS
+    - PRINCIPAL_DUE
+    - PRINCIPAL_PAID
+    - PRINCIPAL_BALANCE
+    - INTEREST_DUE
+    - INTEREST_PAID
+    - INTEREST_BALANCE
+    - INTEREST_ACCRUED
+    - FEES_DUE
+    - FEES_BALANCE
+    - FEES_PAID
+    - PENALTY_CALCULATION_METHOD
+    - PENALTY_DUE
+    - PENALTY_PAID
+    - PENALTY_BALANCE
+    - PENALTY_ACCRUED
+    - PENALTY_RATE
+    - INTEREST_RATE
+    - INTEREST_SPREAD
+    - TOTAL_PAID
+    - TOTAL_BALANCE
+    - TOTAL_DUE
+    - FIRST_REPAYMENT_DATE
+    - EXPECTED_MATURITY_DATE
+    - HAS_SETTLEMENT_ACCOUNT
+  parameters:
+    - branchId
+    - centreId
+    - creditOfficerUsername
+    - accountState
+    - fullDetails
+loan_transactions:
+  parameters:
+    - type
+    - amount
+    - date
+    - repayment
+    - method
+    - identifier
+    - accountName
+    - receiptNumber
+    - bankNumber
+    - checkNumber
+    - bankAccountNumber
+    - bankRoutingNumber
+    - notes
+  transaction_types:
+    - APPROVAL
+    - UNDO_APPROVAL
+    - WITHDRAW
+    - REJECT
+    - LOCK
+    - UNLOCK
+savings:
+  params:
+    - branchId
+    - centreId
+    - creditOfficerUsername
+    - accountState
+    - fullDetails
+    - offset
+    - limit
+  account:
+    - encodedKey
+    - id
+    - accountHolderType
+    - accountHolderKey
+    - productTypeKey
+    - name
+    - accountType
+    - accountState
+    - balance
+    - accruedInterest
+    - maturityDate
+    - targetAmount
+    - recommendedDepositAmount
+    - maxWidthdrawlAmount
+    - targetAmount
+    - lockedBalance
+    - overdrafAmount
+    - overdraftInterestAccrued
+    - overdraftExpiryDate
+    - overdraftLimit
+    - allowOverdraft
+    - assignedBranchKey
+    - assignedCentreKey
+    - interestPaymentPoint
+    - interestPaymentDates
+    - withholdingTaxSourceKey
+    - overdraftInterestRateSource
+    - overdraftInterestRate
+    - overdraftInterestRateReviewCount
+    - overdraftInterestRateReviewUnit
+    - notes
+savings_transactions:
+  transactions:
+    - type
+    - amount
+    - toSavingsAccount
+    - toLoanAccount
+    - date
+    - method
+    - identifier
+    - accountName
+    - receiptNumber
+    - bankNumber
+    - checkNumber
+    - bankAccountNumber
+    - bankRoutingNumber
+    - notes
+attachments:
+  entities:
+    - clients
+    - groups
+    - savings
+    - loans
+    - savingsProducts
+    - loanProducts
+    - branches
+    - centres
+    - users
+  document_holder_type:
+    - CLIENT
+    - GROUP
+    - LOAN_ACCOUNT
+    - LOAN_PRODUCT
+    - DEPOSIT_ACCOUNT
+    - SAVINGS_PRODUCT
+    - BRANCH
+    - CENTRE
+    - USER

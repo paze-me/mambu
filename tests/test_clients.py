@@ -2,114 +2,70 @@ import pytest
 
 
 @pytest.mark.slow
-def test_client_by_id(mambuapi, user_in_mambu):
-    assert mambuapi.Clients.get(user_in_mambu.mambuid) != None
+def test_create_client(mambuapi, user_dict):
+    create_result = mambuapi.create_client(mambuapi.Client(**user_dict))
+    assert create_result['client']['firstName'] == user_dict['firstName']
+
+@pytest.mark.slow
+def test_client_by_id(mambuapi, user_in_mambu_id):
+    client_result = mambuapi.get_client(user_in_mambu_id)
+    assert client_result['client']['id'] == user_in_mambu_id
+
+
+@pytest.mark.slow
+def test_client_get_full_details(mambuapi, user_in_mambu_id):
+    client_result = mambuapi.get_client_full_details(user_in_mambu_id)
+    assert client_result['client']['id'] == user_in_mambu_id
 
 
 @pytest.mark.slow
 def test_client_by_first_name(mambuapi, user_in_mambu):
-    assert mambuapi.Clients.get(
+    client_id = user_in_mambu['client']['id']
+    first_name = user_in_mambu['client']['firstName']
+    client_result = mambuapi.get_client(
         params=mambuapi.Clients.GetClientParams(
-            firstName=user_in_mambu.firstname)
-    )[0]['emailAddress'] == user_in_mambu.email
+            firstName=first_name))
+    assert client_result[0]['id'] == client_id
 
 
 @pytest.mark.slow
-def test_client_update_fieldset_customfield(mambuapi, user_in_mambu):
-    mambuapi.Clients.set_custom_field(
-        user_in_mambu.mambuid, 'c_city', 'London Town', -1)
+def test_clients(mambuapi, user_in_mambu):
+    client_result = mambuapi.get_client()
+    assert len(client_result) > 0
 
 
 @pytest.mark.slow
-def test_create_new_client_fieldset_customfield(mambuapi, user_in_mambu):
-    """Checks that a new customfield is created within a field set
-    then deletes the new field (and associated field set)
-    """
-    customfield = 'c_city'
-
-    max_index_before = mambuapi.Clients.max_field_index(
-        user_in_mambu.mambuid, customfield)
-    mambuapi.Clients.set_custom_field(
-        user_in_mambu.mambuid, customfield, 'London Town', -1)
-    max_index_after = mambuapi.Clients.max_field_index(
-        user_in_mambu.mambuid, customfield)
-    assert max_index_before + 1 == max_index_after
-    mambuapi.Clients.delete_custom_field(
-        user_in_mambu.mambuid, customfield, max_index_after)
-
-
-@pytest.mark.slow
-def test_create_address_details(mambuapi, user_in_mambu):
-    """Checks creating a new address details set and then populating"""
-    test_data = dict(c_address1='1 test', c_city='test city',
-                     c_post_code='aa1 1aa', c_years_in_address=1)
-    mambuapi.Clients.create_address_details(user_in_mambu.mambuid, test_data)
-    max_index = mambuapi.Clients.max_field_index(user_in_mambu.mambuid, 'c_city')
-    for field in test_data:
-        mambuapi.Clients.delete_custom_field(user_in_mambu.mambuid, field, max_index)
+def test_update_user(mambuapi, user_in_mambu):
+    test_name = 'newTestFirstName'
+    client = user_in_mambu['client']
+    client_id = client['id']
+    old_firstname = client['firstName']
+    client['firstName'] = test_name
+    update_result = mambuapi.update_client(client_id, client)
+    assert update_result['client']['firstName'] == test_name
+    updated_client = mambuapi.get_client(client_id)
+    assert test_name == updated_client['firstName']
+    client['firstName'] = old_firstname
+    update_result = mambuapi.update_client(client_id, client)
+    assert update_result['client']['firstName'] == old_firstname
+    old_client = mambuapi.get_client(client_id)
+    assert old_client['firstName'] == old_firstname
 
 
 @pytest.mark.slow
-def test_update_addresses_field(mambuapi, user_in_mambu):
-    """Rip out the addresses field associated with user_in_mambu.mambuid and check
-    that it updates with new details.  Return the addresses field to the
-    original at the end
-    """
-    old_addresses = mambuapi.Clients.get(
-        user_in_mambu.mambuid,
-        params=mambuapi.Clients.GetClientParams(fullDetails=True))['addresses'][0]
-    data = dict(c_address1='1 test', c_post_code='aa1 1aa')
-    addresses = mambuapi.Clients.map_custom_to_addresses(data)
-
-    mambuapi.Clients.update_addresses_field(user_in_mambu.mambuid, addresses)
-
-    new_addresses = mambuapi.Clients.get(
-        user_in_mambu.mambuid,
-        params=mambuapi.Clients.GetClientParams(fullDetails=True))['addresses'][0]
-
-    assert old_addresses['line1'] != new_addresses['line1']
-    assert old_addresses['postcode'] != new_addresses['postcode']
-    assert 'city' not in new_addresses
-    assert 'city' in old_addresses
-
-
-@pytest.mark.slow
-def test_clients(mambuapi):
-    assert mambuapi.Clients.get(
-        None,
-        mambuapi.Clients.GetClientParams(fullDetails=True)
-    ) != None
-
-
-@pytest.mark.slow
-def test_client(mambuapi):
-    clients = mambuapi.Clients.get(None)
-    if len(clients) > 0:
-        assert mambuapi.Clients.get(clients[0]['id']) != None
-
-
-@pytest.mark.slow
-def test_update_user(mambuapi):
-    clients = mambuapi.Clients.get(None)
-    updated_client = clients[0]
-    updated_client['firstName'] = 'newGarry'
-    mambuapi.Clients.update(updated_client['id'], updated_client)
-    last_client = mambuapi.Clients.get(updated_client['id'])
-    assert 'newGarry' ==  last_client['firstName']
-
-
-@pytest.mark.slow
-def test_custom_value(mambuapi):
-    clients = mambuapi.Clients.get(None)
-    if len(clients) > 0:
-        mambuapi.Clients.set_custom_field(clients[0]['id'], 'c_marital_status', 'test_value')
-        mambuapi.Clients.delete_custom_field(clients[0]['id'], 'c_marital_status')
-
-
-@pytest.mark.slow
-def test_get_customField(mambuapi):
-    assert mambuapi.CustomFields.get('c_marital_status') != None
-
-@pytest.mark.slow
-def test_get_customFieldSets(mambuapi):
-    assert mambuapi.CustomFields.get_sets('CLIENT_INFO') != None
+def test_custom_value(mambuapi, user_in_mambu):
+    client = user_in_mambu['client']
+    client_id = client['id']
+    custom_field = 'c_marital_status'
+    test_value = 'test_value'
+    set_result = mambuapi.set_client_custom_field(
+        client_id, custom_field, test_value)
+    assert set_result['returnCode'] == 0
+    updated_client = mambuapi.get_client_full_details(client_id)
+    updated_field = updated_client['customInformation'][0]
+    assert updated_field['customFieldID'] == custom_field
+    assert updated_field['value'] == test_value
+    result = mambuapi.delete_client_custom_field(client_id, 'c_marital_status')
+    assert result['returnCode'] == 0
+    old_client = mambuapi.get_client_full_details(client_id)
+    assert old_client['customInformation'] == []

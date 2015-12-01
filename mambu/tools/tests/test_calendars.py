@@ -1,7 +1,8 @@
-from pandas.tseries.offsets import CustomBusinessDay
 from datetime import datetime
 
-from tools import calendars
+from pandas.tseries.offsets import CustomBusinessDay
+
+from mambu.tools import calendars
 
 
 def test_UKHolidayCalendar():

@@ -3,21 +3,44 @@ import logging
 import requests
 import json
 import datetime
+import base64
 
 
 from loans import LoansAPI
-from attachments import AttachmentsAPI
 from tools import datelib, data
 from exception import MambuAPIException
 
 client_metadata = data.load_yaml('clients.yaml')
+entities = data.load_yaml('attachments.yaml', 'entities')
+
+
+class AbstractDataObject(object):
+    def __init__(self, **kw):
+        for key, val in kw.items():
+            self.__setattr__(key, val)
+
+    def __setattr__(self, key, val):
+        if key not in type(self).fields:
+            raise ValueError(key + " is not an allowed field")
+        self.__dict__[key] = val
+
+    def __getattr__(self, key):
+        return self.__dict__[key]
+
+
+class RequestJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, AbstractDataObject):
+            return o.__dict__
+        if isinstance(o, (datetime.date, datetime.datetime)):
+            return o.isoformat()
+        return o
 
 
 class API(object):
     def __init__(self, config_):
         self.config = config_
         self.Loans = LoansAPI(self)
-        self.Attachments = AttachmentsAPI(self)
         self.base_url = 'https://' + self.config.domain + '/api/'
         self.json_encoder = RequestJSONEncoder()
 
@@ -246,6 +269,81 @@ class API(object):
         return self._post(self._url_clients(client_id),
                           data=dict(addresses=[addresses]))
 
+    def get_attachment(self, document_id):
+        """Fetches the attachment/document associated with attachment_id
+
+        Parameters
+        ----------
+        document_id: int, str
+            id or encodedKey for the document in mambu
+
+        Returns
+        -------
+        dict
+        """
+        return self._get(self._postfix_url(document_id))
+
+    def create_attachment(self, document_holder_key, document_holder_type, name,
+                          document_type, document_content):
+        """Upload the document with content document_content
+
+        Parameters
+        ----------
+        document_holder_key: str
+            encodedKey for the document holder in mambu
+        document_holder_type: str
+            the type of document being uploaded
+        name: str
+            name of the document
+        document_type: str
+            the attachment file extension
+        document_content: base64 encoded string
+            The content of the document
+        Returns
+        -------
+        dict
+        """
+        document = dict(
+            documentHolderKey=document_holder_key, type=document_type,
+            documentHolderType=document_holder_type, name=name)
+        return self._post('documents', data=dict(
+                document=document,
+                documentContent=base64.b64encode(document_content)))
+
+    def delete_attachment(self, document_id):
+        """Delete the document associated with document_id
+
+        Parameters
+        ----------
+        document_id: int, str
+            id or encodedkey for the document in mambu
+
+        Returns
+        -------
+        dict
+        """
+        return self._delete(self._postfix_url('documents', document_id))
+
+    def get_attachment_by_entity(self, entity, entity_id):
+        """Fetch the documents/attachments associated with the entity of type
+        entity and entity_id
+
+        Parameters
+        ----------
+        entity: str
+            One of the standard entities e.g. clients, loans etc.
+        entity_id: int, str
+            id or encodedKey of the entity in mambu
+
+        Returns
+        -------
+        dict
+        """
+        if entity not in entities:
+            raise Exception('{} not found.  Must be one of {}'.format(
+                entity, entities))
+        return self._get(self._postfix_url(entity, entity_id, 'documents'))
+
     def get_loan(self, loan_id=None):
         return self.Loans.get(loan_id)
 
@@ -254,9 +352,6 @@ class API(object):
 
     def get_savings_transactions(self, savings_id):
         return self._get(self._url_savings_transactions(savings_id))
-
-    def get_attachment(self, attachment_id=None):
-        return self.Attachments.get(attachment_id)
 
     def get_loan_product(self, loan_product_id=None):
         return self._get(self._url_loan_products(loan_product_id))
@@ -541,27 +636,3 @@ class API(object):
 
     class ClientIdDocument(AbstractDataObject):
         fields = client_metadata['id_document']
-
-
-class AbstractDataObject(object):
-    def __init__(self, **kw):
-        for key, val in kw.items():
-            self.__setattr__(key, val)
-
-    def __setattr__(self, key, val):
-        if key not in type(self).fields:
-            raise ValueError(key + " is not an allowed field")
-        self.__dict__[key] = val
-
-    def __getattr__(self, key):
-        return self.__dict__[key]
-
-
-class RequestJSONEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, AbstractDataObject):
-            return o.__dict__
-        if isinstance(o, (datetime.date, datetime.datetime)):
-            return o.isoformat()
-        return o
-

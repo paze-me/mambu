@@ -23,9 +23,8 @@ def test_attachments_for_loans(mambuapi):
         assert(mambuapi.Attachments.getForLoan(loans[0]['id']) is not None)
 
 
-@pytest.mark.skipif('CODESHIP' in os.environ, reason='Not running on Codeship')
 @pytest.mark.slow
-def test_create_and_delete_attachment(mambuapi, user_in_mambu):
+def test_create_and_attachment(mambuapi, user_in_mambu):
     client = user_in_mambu['client']
     client_id = client['id']
     encoded_key = client['encodedKey']

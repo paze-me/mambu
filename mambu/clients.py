@@ -10,9 +10,6 @@ client_metadata = load_yaml('clients.yaml')
 class ClientsAPI(AbstractAPI):
     url = 'clients'
     get_params = frozenset(client_metadata['parameters'])
-    _c_addresses_map = dict(
-        c_address1='line1', c_address2='line2', c_city='city',
-        c_country='country', c_post_code='postcode')
 
     def get(self, client_id=None, params=None):
         """Get the details for the client fro mambu
@@ -29,7 +26,7 @@ class ClientsAPI(AbstractAPI):
         """
         if params:
             params = params.__dict__
-        return self._request('get', self._client_url(client_id), params)
+        return self._get(self._client_url(client_id), params)
 
     def get_full_details(self, client_id):
         """Get the full details for the client associated with client_id by
@@ -118,11 +115,9 @@ class ClientsAPI(AbstractAPI):
         -------
         dict
         """
-        return self._request(
-            'post', self._client_url(client_id), data={
-                'client': client, 'idDocuments': id_documents,
-                'addresses': addresses,
-                'customInformation': custom_information})
+        return self._post(self._client_url(client_id), data=dict(
+                client=client, idDocuments=id_documents, addresses=addresses,
+                customInformation=custom_information))
 
     def _client_url(self, client_id=None):
         """Returns the api url for updating a specific client in mambu
@@ -165,9 +160,9 @@ class ClientsAPI(AbstractAPI):
         -------
         json
         """
-        return self._request(
-            'patch', self._custom_field_url(client_id, custom_field_id, index),
-            data={'value': value})
+        return self._patch(self._custom_field_url(client_id, custom_field_id,
+                                                  index),
+                           data={'value': value})
 
     def set_list_custom_field(self, client_id, custom_fields):
         """Iterate through the custom_fields specified in custom_fields and call
@@ -211,8 +206,8 @@ class ClientsAPI(AbstractAPI):
         -------
         dict
         """
-        return self._request(
-            'delete', self._custom_field_url(client_id, custom_field_id, index))
+        return self._delete(self._custom_field_url(client_id, custom_field_id,
+                                                   index))
 
     def _custom_field_url(self, client_id, custom_field_id, index=None):
         """Returns the api url for updating a custom field for a specific client
@@ -245,12 +240,8 @@ class ClientsAPI(AbstractAPI):
             the data to use to populate the addresses field
 
         """
-        return self._request('post', self._client_url(client_id),
-                             data=dict(addresses=[addresses]))
-
-    def map_custom_to_addresses(self, custom_data):
-        return {self._c_addresses_map[k]: v for k, v in custom_data.iteritems()
-                if k in self._c_addresses_map}
+        return self._post(self._client_url(client_id),
+                          data=dict(addresses=[addresses]))
 
     class GetClientParams(AbstractDataObject):
         fields = client_metadata['parameters']

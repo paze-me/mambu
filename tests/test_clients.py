@@ -6,10 +6,16 @@ def test_create_client(mambuapi, user_dict):
     create_result = mambuapi.create_client(mambuapi.Client(**user_dict))
     assert create_result['client']['firstName'] == user_dict['firstName']
 
+
 @pytest.mark.slow
-def test_client_by_id(mambuapi, user_in_mambu_id):
-    client_result = mambuapi.get_client(user_in_mambu_id)
-    assert client_result['client']['id'] == user_in_mambu_id
+def test_client_by_id(mambuapi, user_in_mambu):
+    client = user_in_mambu['client']
+    client_id = client['id']
+    client_result = mambuapi.get_client(client_id)
+    exclude = ['creationDate', 'approvedDate', 'lastModifiedDate']
+    fields = [k for k in client if k not in exclude]
+    for k in fields:
+        assert client_result[k] == client[k]
 
 
 @pytest.mark.slow
@@ -23,7 +29,7 @@ def test_client_by_first_name(mambuapi, user_in_mambu):
     client_id = user_in_mambu['client']['id']
     first_name = user_in_mambu['client']['firstName']
     client_result = mambuapi.get_client(
-        params=mambuapi.Clients.GetClientParams(
+        params=mambuapi.GetClientParams(
             firstName=first_name))
     assert client_result[0]['id'] == client_id
 

@@ -1,7 +1,8 @@
 import pytest
 
+
 @pytest.mark.slow
 def test_transactions(mambuapi):
-    savings = mambuapi.Savings.get(None)
-    if len(savings)>0:
-        assert mambuapi.SavingsTransactions.get(savings[0]['id']) != None
+    savings = mambuapi.get_savings(None)
+    if len(savings) > 0:
+        assert mambuapi.get_savings_transactions(savings[0]['id']) is not None

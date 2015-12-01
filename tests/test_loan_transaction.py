@@ -36,19 +36,19 @@ def test_standalone_types(mambuapi, loan_dict, unapproved_loan):
 
 
 @pytest.mark.slow
-def test__disburse_apply_fee(mambuapi, approved_loan):
+def test_disburse_apply_fee(mambuapi, approved_loan):
     loan_id = approved_loan['id']
     _fee = 10
     result = mambuapi.disburse(loan_id)
     assert result['type'] == 'DISBURSMENT'
-    loan_after = mambuapi.Loans.get(loan_id)
-    assert float(approved_loan['principalBalance']
-                 ) + float(result['balance']) == float(loan_after['principalBalance'])
+    loan_after = mambuapi.get_loan(loan_id)
+    net = float(approved_loan['principalBalance']) + float(result['balance'])
+    assert net == float(loan_after['principalBalance'])
     result = mambuapi.apply_fee(loan_id, _fee)
     assert result['amount'] == str(_fee)
-    loan_after_fee = mambuapi.Loans.get(loan_id)
-    assert float(approved_loan['feesDue']
-                 ) + _fee == float(loan_after_fee['feesDue'])
+    loan_after_fee = mambuapi.get_loan(loan_id)
+    net = float(approved_loan['feesDue']) + _fee
+    assert net == float(loan_after_fee['feesDue'])
 
 
 @pytest.mark.slow

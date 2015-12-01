@@ -5,12 +5,13 @@ from loan_transaction import LoanTransactionsAPI
 from savings_transactions import SavingsTransactionsAPI
 from attachments import AttachmentsAPI
 from custom_fields import CustomFieldsAPI
-from loan_products import LoanProductsAPI
+from util import AbstractAPI
 
 
 class API(object):
     def __init__(self, config_):
         self.config = config_
+        self._abstract_api = AbstractAPI(config_)
         self.Clients = ClientsAPI(self)
         self.Loans = LoansAPI(self)
         self.Savings = SavingsAPI(self)
@@ -18,7 +19,6 @@ class API(object):
         self.SavingsTransactions = SavingsTransactionsAPI(self)
         self.Attachments = AttachmentsAPI(self)
         self.CustomFields = CustomFieldsAPI(self)
-        self.LoanProducts = LoanProductsAPI(self)
 
     def get_client(self, client_id=None):
         return self.Clients.get(client_id)
@@ -33,7 +33,15 @@ class API(object):
         return self.Attachments.get(attachment_id)
 
     def get_loan_product(self, loan_product_id=None):
-        return self.LoanProducts.get(loan_product_id)
+        return self._abstract_api._get(
+            self._abstract_api._postfix_url('loan_products', loan_product_id))
+
+    def get_loan_product_encoded_key(self, loan_product_id=None):
+        loan_product = self.get_loan_product(loan_product_id)
+        return loan_product['encodedKey']
+
+    def get_transactions(self):
+        pass
 
     def create_client(self, *args, **kwargs):
         return self.Clients.create(*args, **kwargs)

@@ -70,7 +70,7 @@ class API(object):
         return '/'.join([arg for arg in args if arg is not None])
 
     def get_client(self, client_id=None, params=None):
-        """Get the details for the client fro mambu
+        """Get the details for the client from mambu
 
         Parameters
         ----------
@@ -129,8 +129,8 @@ class API(object):
                       custom_information=None, id_documents=None):
         """Update the client in mambu with client_id using the data provided in
         the parameters
-        WARNING This is a post action that will overwrite and existing data for
-        teh client
+        WARNING This is a post action that will overwrite any existing data for
+        the client
 
         Parameters
         ----------

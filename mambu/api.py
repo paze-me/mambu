@@ -6,12 +6,13 @@ import datetime
 import base64
 
 
-from loans import LoansAPI
 from tools import datelib, data
 from exception import MambuAPIException
 
 client_metadata = data.load_yaml('clients.yaml')
 entities = data.load_yaml('attachments.yaml', 'entities')
+loans_metadata = data.load_yaml('loans.yaml')
+logger = logging.getLogger(__name__)
 
 
 class AbstractDataObject(object):
@@ -40,7 +41,6 @@ class RequestJSONEncoder(json.JSONEncoder):
 class API(object):
     def __init__(self, config_):
         self.config = config_
-        self.Loans = LoansAPI(self)
         self.base_url = 'https://' + self.config.domain + '/api/'
         self.json_encoder = RequestJSONEncoder()
 
@@ -344,8 +344,45 @@ class API(object):
                 entity, entities))
         return self._get(self._postfix_url(entity, entity_id, 'documents'))
 
-    def get_loan(self, loan_id=None):
-        return self.Loans.get(loan_id)
+    def get_loan(self, loan_id=None, params=None):
+        """Get the loan details for the particular loan_id
+
+        Parameters
+        ----------
+        loan_id: int, str
+            id for the loan in mambu
+        params: GetLoanParams
+            params for filtering the loan
+
+        Returns
+        -------
+        dict
+        """
+        if params:
+            params = params.__dict__
+        return self._get(self._url_loans(loan_id), params)
+
+    def get_loan_full_details(self, loan_id):
+        """Get the loan details with the fullDetails parameter set to True
+
+        Parameters
+        ----------
+        loan_id: str
+            id or encodedKey for the loan in mambu
+
+        Returns
+        -------
+        dict
+        """
+        return self.get_loan(loan_id,
+                             params=self.GetLoanParams(fullDetails=True))
+
+    def get_loans_by_entity(self, entity, entity_id, params=None):
+        _entities = ['clients', 'groups']
+        if entity not in _entities:
+            raise Exception('{} not found.  Must be one of {}'.format(
+                entity, _entities))
+        return self._get(self._postfix_url(entity, entity_id, 'loans'), params)
 
     def get_savings(self, saving_id=None, params=None):
         return self._get(self._url_savings(saving_id), params=params)
@@ -401,8 +438,177 @@ class API(object):
         url = 'customfieldsets' + ('' if _type is None else '?type=%s' % _type)
         return self._get(url)
 
-    def create_loan(self, *args, **kwargs):
-        return self.Loans.create(*args, **kwargs)
+    def create_loan(self, loan, custom_information=None):
+        """Create a loan in mambu defined by the information in loan and
+        custom_information
+
+        Parameters
+        ----------
+        loan: dict
+            data associated with the loan
+        custom_information: dict
+            additional custom_information for the loan
+
+        Returns
+        -------
+        dict
+        """
+        return self._post(self._url_loans(), data=dict(
+            loanAccount=loan, customInformation=custom_information))
+
+    def update_loan(self, loan_id, loan, custom_information=None):
+        """Update the loan with loan_id using details in loan and
+        custom_information
+
+        Parameters
+        ----------
+        loan_id: int, str
+            id or encoded_key for the loan in mambu
+        loan: loanAccount
+
+        custom_information: list(customField)
+            custom_information to overwrite for the loan
+        Returns
+        -------
+        dict
+        """
+        return self._post(self._url_loans(loan_id), data=dict(
+            loanAccount=loan, customInformation=custom_information))
+
+    def delete_loan(self, loan_id):
+        """Delete the loan with loan_id from mambu
+
+        Parameters
+        ----------
+        loan_id: int, str
+            id or encoded_key for the loan in mambu
+
+        Returns
+        -------
+        dict
+        """
+        return self._delete(self._url_loans(loan_id))
+
+    def set_loan_custom_field(self, loan_id, custom_field_id, value):
+        """Set the custom field
+
+        Parameters
+        ----------
+        loan_id: int, str
+            id or encoded_key for the loan in mambu
+        custom_field_id: str
+            name or encoded_key for the custom_field
+        value: object
+            value to set for the custom field
+
+        Returns
+        -------
+        dict
+        """
+        return self._patch(self._postfix_url(
+            'loans', loan_id, 'custominformation', custom_field_id),
+            data=dict(value=value))
+
+    def delete_loan_custom_field(self, loan_id, custom_field_id):
+        """Delete the custom field with custom_field_id from the loan with
+        loan_id in mambu
+
+        Parameters
+        ----------
+        loan_id: int, str
+            id or encoded_key for the loan in mambu
+        custom_field_id: str
+            name or encoded_key for the custom field
+
+        Returns
+        -------
+        dict
+        """
+        return self._delete(self._postfix_url(
+            'loans', loan_id, 'custominformation', custom_field_id))
+
+    def get_loans_by_filter_field(self, filter_field, filter_element=None,
+                                  value=None, second_value=None):
+        """Filter loans by the criteria defined in the parameters
+
+        Parameters
+        ----------
+        filter_field: str
+            field used to filter but in database form e.f. "LOAN_AMOUNT"
+        filter_element: str
+            comparison criteria for the filter_field.  Defaults to None
+        value: int, str
+            value to use for comparison.  Defaults to None
+        second_value: int, str
+            second_value to use for banded criteria such as BETWEEN.  Defaults
+            to None.
+
+        Returns
+        -------
+        list(Loan)
+        """
+        p = dict(filterSelection=filter_field, filterElement=filter_element,
+                 value=value, secondValue=second_value)
+        filter_constraints = {k: v for k, v in p.iteritems() if v is not None}
+        return self._post(self._url_loans('search'),
+                          data=dict(filterConstraints=[filter_constraints]))
+
+    def get_disbursements_due_on_date(self, datestr):
+        result = []
+        loans = self.get_loan()
+        _date = datelib.coerce_date(datestr)
+        for loan in loans:
+            pending_tranches = [
+                t for t in loan['tranches']
+                if 'disbursementTransactionKey' not in t
+                and datelib.coerce_date(t['expectedDisbursementDate']) == _date]
+            if len(pending_tranches) == 1:
+                tranche = pending_tranches[0]
+                amount = float(tranche['amount'])
+                result.append(dict(
+                    trancheEncodedKey=tranche['encodedKey'], amount=amount,
+                    loanEncodedKey=loan['encodedKey'],
+                    accountHolderKey=loan['accountHolderKey'], loanId=loan['id'],
+                    expectedDisbursementDate=tranche['expectedDisbursementDate']))
+            elif len(pending_tranches) > 1:
+                logger.warning('%s has too many tranches pending on %s' % (
+                    loan['id'], datestr))
+        return result
+
+    def get_disbursements_due_today(self):
+        """Return a list of loans with expectedDisbursementDate today.  Specific
+        use of the more general get_loans_by_filter_field
+
+        Returns
+        -------
+        list(Loan)
+        """
+        datestr = datelib.mambu_date(datelib.date_today())
+        return self.get_disbursements_due_on_date(datestr)
+
+    def get_disbursements_due_in_xbdays(self, days):
+        due_date = datelib.mambu_date(datelib.next_n_bday(n=days))
+        return self.get_disbursements_due_on_date(due_date)
+
+    def get_principals_due_today(self):
+        return self.get_loans_by_filter_field('EXPECTED_MATURITY_DATE', 'TODAY')
+
+    def get_principals_due_on_date(self, datestr):
+        datestr = datelib.mambu_date(datestr)
+        return self.get_loans_by_filter_field(
+            'EXPECTED_MATURITY_DATE', 'ON', datestr)
+
+    def get_principals_due_in_xbdays(self, days):
+        due_date = datelib.mambu_date(datelib.next_n_bday(n=days))
+        return self.get_principals_due_on_date(due_date)
+
+    def get_repayments_due_on_date(self, datestr):
+        datestr = datelib.mambu_date(datestr)
+        return self.get_loans_by_filter_field(
+            'FIRST_REPAYMENT_DATE', 'ON', datestr)
+
+    def get_repayments_due_today(self):
+        return self.get_loans_by_filter_field('FIRST_REPAYMENT_DATE', 'TODAY')
 
     def create_savings(self, savings_account, custom_information=None):
         return self._post(self._url_savings(), data=dict(
@@ -636,3 +842,12 @@ class API(object):
 
     class ClientIdDocument(AbstractDataObject):
         fields = client_metadata['id_document']
+
+    class GetLoanParams(AbstractDataObject):
+        fields = loans_metadata['parameters']
+
+    class Loan(AbstractDataObject):
+        fields = loans_metadata['fields']
+
+    class FilterField(AbstractDataObject):
+        fields = loans_metadata['loan_account_filter_values']

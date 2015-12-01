@@ -39,7 +39,7 @@ class RequestJSONEncoder(json.JSONEncoder):
 class API(object):
     def __init__(self, config_):
         self.config = config_
-        self.base_url = 'https://' + self.config.domain + '/api/'
+        self.base_url = 'https://{}/api/'.format(self.config.domain)
         self.json_encoder = RequestJSONEncoder()
 
     def _request(self, method, url, params=None, data=None):
@@ -337,9 +337,10 @@ class API(object):
         -------
         dict
         """
-        if entity not in entities:
+        _entities = metadata['attachments']['entities']
+        if entity not in _entities:
             raise Exception('{} not found.  Must be one of {}'.format(
-                entity, entities))
+                entity, _entities))
         return self._get(self._postfix_url(entity, entity_id, 'documents'))
 
     def get_loan(self, loan_id=None, params=None):

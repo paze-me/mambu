@@ -2,7 +2,6 @@ from clients import ClientsAPI
 from loans import LoansAPI
 from loan_transaction import LoanTransactionsAPI
 from attachments import AttachmentsAPI
-from custom_fields import CustomFieldsAPI
 from util import AbstractAPI
 
 
@@ -14,7 +13,6 @@ class API(AbstractAPI):
         self.Loans = LoansAPI(self)
         self.LoanTransactions = LoanTransactionsAPI(self)
         self.Attachments = AttachmentsAPI(self)
-        self.CustomFields = CustomFieldsAPI(self)
 
     def get_client(self, client_id=None):
         return self.Clients.get(client_id)
@@ -37,6 +35,13 @@ class API(AbstractAPI):
     def get_loan_product_encoded_key(self, loan_product_id=None):
         loan_product = self.get_loan_product(loan_product_id)
         return loan_product['encodedKey']
+
+    def get_custom_field(self, custom_field_id):
+        return self._get(self._postfix_url('customfields'))
+
+    def custom_field_sets(self, _type=None):
+        url = 'customfieldsets' + '' if _type is None else '?type=%s' % _type
+        return self._get(url)
 
     def get_loan_transactions(self):
         pass

@@ -30,8 +30,8 @@ def user_dict(password):
 
 @pytest.fixture(scope='function')
 def user_in_mambu(mambuapi, user_dict):
-    """The dict response after creting a user with minimum fields in mambu"""
-    return mambuapi.create_client(mambuapi.Clients.Client(**user_dict))
+    """The dict response after creating a user with minimum fields in mambu"""
+    return mambuapi.create_client(mambuapi.Client(**user_dict))
 
 
 @pytest.fixture(scope='function')

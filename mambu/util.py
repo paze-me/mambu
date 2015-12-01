@@ -18,10 +18,10 @@ class AbstractAPI(object):
 
     def _request(self, method, url, params=None, data=None):
         headers = {'Content-Type': 'application/json'} if data else {}
-        dataStr = self.json_encoder.encode(data)
-        logging.debug("Body: " + dataStr)
+        data_str = self.json_encoder.encode(data)
+        logging.debug("Body: " + data_str)
         response = getattr(requests, method)(
-            self.base_url + url, headers=headers, params=params, data=dataStr,
+            self.base_url + url, headers=headers, params=params, data=data_str,
             auth=(self.config.username, self.config.password))
         if response.status_code != 200 and response.status_code != 201:
             raise MambuAPIException("Error performing the request",

@@ -2,6 +2,8 @@ import pytest
 from random import choice
 import string
 
+from mambu.tools import datelib
+
 
 titles = ['Mr', 'Mrs', 'Ms', 'Prof', 'Dr', 'Eng']
 
@@ -29,7 +31,7 @@ def user_dict(password):
 @pytest.fixture(scope='function')
 def user_in_mambu(mambuapi, user_dict):
     """The dict response after creting a user with minimum fields in mambu"""
-    return mambuapi.Clients.create(mambuapi.Clients.Client(**user_dict))
+    return mambuapi.create_client(mambuapi.Clients.Client(**user_dict))
 
 
 @pytest.fixture(scope='function')
@@ -68,7 +70,7 @@ def loan_dict(user_in_mambu):
 def unapproved_loan(mambuapi, loan_dict):
     """The response/loan object returned from mambu when a loan is created for
      user_in_mambu"""
-    response = mambuapi.Loans.create(loan_dict)['loanAccount']
+    response = mambuapi.create_loan(loan_dict)['loanAccount']
     return response
 
 
@@ -76,5 +78,44 @@ def unapproved_loan(mambuapi, loan_dict):
 def approved_loan(mambuapi, unapproved_loan):
     """The loan object in mamabu for user_in_mambu once it has been approved"""
     loan_id = unapproved_loan['id']
-    _approved_loan = mambuapi.LoanTransactions.approve(loan_id)
+    _approved_loan = mambuapi.approve(loan_id)
     return _approved_loan
+
+
+def _shift_loan_start(_dict, start_date=None):
+    start_date = datelib.datetime_today() if start_date is None \
+        else datelib.coerce_datetime(start_date)
+    tranches = _dict['tranches']
+    disbursement_dates = map(
+        lambda x: datelib.coerce_datetime(x['expectedDisbursementDate']),
+        tranches)
+    time_delta = start_date - disbursement_dates[0]
+    new_dates = map(lambda x: datelib.mambu_datetime(x + time_delta),
+                    disbursement_dates)
+    for n in xrange(len(tranches)):
+        tranches[n]['expectedDisbursementDate'] = new_dates[n]
+    _dict['tranches'] = tranches
+    for d in ['expectedMaturityDate', 'firstRepaymentDate']:
+        if d in _dict:
+            _dict[d] = datelib.mambu_date(
+                datelib.coerce_datetime(_dict[d]) + time_delta)
+    return _dict
+
+
+@pytest.fixture(scope='function')
+def loan_dict_today(loan_dict):
+    return _shift_loan_start(loan_dict)
+
+
+@pytest.fixture(scope='function')
+def unapproved_loan_start_today(mambuapi, user_in_mambu, loan_dict_today):
+    response = mambuapi.Loans.create(loan_dict_today)['loanAccount']
+    return response
+
+
+@pytest.fixture(scope='function')
+def approved_loan_start_today(mambuapi, unapproved_loan_start_today):
+    loan_id = unapproved_loan_start_today['id']
+    mambuapi.approve(loan_id)
+    response = mambuapi.get_loan(loan_id)
+    return response

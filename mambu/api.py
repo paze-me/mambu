@@ -1,6 +1,5 @@
 from clients import ClientsAPI
 from loans import LoansAPI
-from savings import SavingsAPI
 from loan_transaction import LoanTransactionsAPI
 from attachments import AttachmentsAPI
 from custom_fields import CustomFieldsAPI
@@ -13,7 +12,6 @@ class API(AbstractAPI):
         self.config = config_
         self.Clients = ClientsAPI(self)
         self.Loans = LoansAPI(self)
-        self.Savings = SavingsAPI(self)
         self.LoanTransactions = LoanTransactionsAPI(self)
         self.Attachments = AttachmentsAPI(self)
         self.CustomFields = CustomFieldsAPI(self)
@@ -24,8 +22,8 @@ class API(AbstractAPI):
     def get_loan(self, loan_id=None):
         return self.Loans.get(loan_id)
 
-    def get_saving(self, saving_id):
-        return self.Savings.get(saving_id)
+    def get_savings(self, saving_id=None, params=None):
+        return self._get(self._url_savings(saving_id), params=params)
 
     def get_savings_transactions(self, savings_id):
         return self._get(self._url_savings_transactions(savings_id))
@@ -49,9 +47,28 @@ class API(AbstractAPI):
     def create_loan(self, *args, **kwargs):
         return self.Loans.create(*args, **kwargs)
 
+    def create_savings(self, savings_account, custom_information=None):
+        return self._post(self._url_savings(), data=dict(
+            savingsAccount=savings_account,
+            customInformation=custom_information))
+
     def create_savings_transaction(self, savings_id, savings_transaction=None):
         return self._post(self._url_savings_transactions(
             savings_id, savings_transaction))
+
+    def update_savings(
+            self, savings_id, savings_account, custom_information=None):
+        return self._post(self._url_savings_transactions(savings_id),
+                          data=dict(savingsAccount=savings_account,
+                                    customInformation=custom_information))
+
+    def savings_set_custom_field(self, savings_id, custom_field_id, value):
+        return self._patch(self._url_savings_custom_field(
+            savings_id, custom_field_id), data={'value': value})
+
+    def savings_delete_custom_field(self, savings_id, custom_field_id):
+        return self._delete(
+            self._url_savings_custom_field(savings_id, custom_field_id))
 
     def approve_loan(self, loan_id):
         return self.LoanTransactions.approve(loan_id)
@@ -61,6 +78,13 @@ class API(AbstractAPI):
 
     def disburse(self, loan_id):
         return self.LoanTransactions.disburse(loan_id)
+
+    def _url_savings(self, savings_id=None):
+        return self._postfix_url('savings', savings_id)
+
+    def _url_savings_custom_field(self, savings_id, custom_field_id):
+        return self._postfix_url(
+            self._url_savings(savings_id), 'custominformation', custom_field_id)
 
     def _url_savings_transactions(self, savings_id, transactions_id=None):
         return self._postfix_url(

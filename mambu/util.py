@@ -34,6 +34,12 @@ class AbstractAPI(object):
     def _post(self, url, params=None, data=None):
         return self._request('post', url, params, data)
 
+    def _patch(self, url, params=None, data=None):
+        return self._request('patch', url, params, data)
+
+    def _delete(self, url, params=None, data=None):
+        return self._request('patch', url, params, data)
+
     def _postfix_url(self, *args):
         return '/'.join([arg for arg in args if arg is not None])
 

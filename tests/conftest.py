@@ -109,7 +109,7 @@ def loan_dict_today(loan_dict):
 
 @pytest.fixture(scope='function')
 def unapproved_loan_start_today(mambuapi, user_in_mambu, loan_dict_today):
-    response = mambuapi.Loans.create(loan_dict_today)['loanAccount']
+    response = mambuapi.create_loan(loan_dict_today)['loanAccount']
     return response
 
 

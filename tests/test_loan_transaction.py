@@ -73,3 +73,11 @@ def test_disburse_today(mambuapi, approved_loan_start_today):
     loan_after = mambuapi.get_loan(loan_id)
     net = float(loan['principalBalance']) + float(result['balance'])
     assert net == float(loan_after['principalBalance'])
+
+
+@pytest.mark.slow
+def test_disburse_set_repayment(mambuapi, approved_loan):
+    loan_id = approved_loan['id']
+    mambuapi.disburse(loan_id, first_repayment_date='2015-09-25')
+    loans = mambuapi.get_repayments_due_on_date('2015-09-25')
+    assert loan_id in map(lambda x: x['id'], loans)

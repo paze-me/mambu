@@ -549,7 +549,7 @@ class API(object):
         p = dict(filterSelection=filter_field, filterElement=filter_element,
                  value=value, secondValue=second_value)
         filter_constraints = [{k: v for k, v in p.iteritems() if v is not None}]
-        return self.get_loans_by_filter_constraints([filter_constraints])
+        return self.get_loans_by_filter_constraints(filter_constraints)
 
     def get_loans_by_filter_constraints(self, filter_constraints):
         """Use a list of filter constraints to search for loans matching the

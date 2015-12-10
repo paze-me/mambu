@@ -526,8 +526,8 @@ class API(object):
         return self._delete(self._postfix_url(
             'loans', loan_id, 'custominformation', custom_field_id))
 
-    def get_loans_by_filter_field(self, filter_field, filter_element=None,
-                                  value=None, second_value=None):
+    def get_loans_by_single_filter(self, filter_field, filter_element=None,
+                                   value=None, second_value=None):
         """Filter loans by the criteria defined in the parameters
 
         Parameters
@@ -548,9 +548,26 @@ class API(object):
         """
         p = dict(filterSelection=filter_field, filterElement=filter_element,
                  value=value, secondValue=second_value)
-        filter_constraints = {k: v for k, v in p.iteritems() if v is not None}
+        filter_constraints = [{k: v for k, v in p.iteritems() if v is not None}]
+        return self.get_loans_by_filter_constraints([filter_constraints])
+
+    def get_loans_by_filter_constraints(self, filter_constraints):
+        """Use a list of filter constraints to search for loans matching the
+        criteria
+
+        Parameters
+        ----------
+        filter_constraints: list(dict)
+            each element of the list should be a a filterConstraint with at
+            least the fields filterSelection and filterElement.  value and
+            value2 may be supplied depending on the filter
+
+        Returns
+        -------
+        list(dict)
+        """
         return self._post(self._url_loans('search'),
-                          data=dict(filterConstraints=[filter_constraints]))
+                          data=dict(filterConstraints=filter_constraints))
 
     def get_disbursements_due_on_date(self, datestr):
         result = []
@@ -590,11 +607,11 @@ class API(object):
         return self.get_disbursements_due_on_date(due_date)
 
     def get_principals_due_today(self):
-        return self.get_loans_by_filter_field('EXPECTED_MATURITY_DATE', 'TODAY')
+        return self.get_loans_by_single_filter('EXPECTED_MATURITY_DATE', 'TODAY')
 
     def get_principals_due_on_date(self, datestr):
         datestr = datelib.mambu_date(datestr)
-        return self.get_loans_by_filter_field(
+        return self.get_loans_by_single_filter(
             'EXPECTED_MATURITY_DATE', 'ON', datestr)
 
     def get_principals_due_in_xbdays(self, days):
@@ -603,11 +620,11 @@ class API(object):
 
     def get_repayments_due_on_date(self, datestr):
         datestr = datelib.mambu_date(datestr)
-        return self.get_loans_by_filter_field(
+        return self.get_loans_by_single_filter(
             'FIRST_REPAYMENT_DATE', 'ON', datestr)
 
     def get_repayments_due_today(self):
-        return self.get_loans_by_filter_field('FIRST_REPAYMENT_DATE', 'TODAY')
+        return self.get_loans_by_single_filter('FIRST_REPAYMENT_DATE', 'TODAY')
 
     def create_savings(self, savings_account, custom_information=None):
         return self._post(self._url_savings(), data=dict(

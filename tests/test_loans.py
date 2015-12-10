@@ -60,10 +60,23 @@ def test_custom_field(mambuapi, unapproved_loan):
 
 
 @pytest.mark.slow
-def test_get_loans_by_filter_field(mambuapi, unapproved_loan):
-    loans = mambuapi.get_loans_by_filter_field(
+def test_get_loans_by_single_filter(mambuapi, unapproved_loan):
+    loans = mambuapi.get_loans_by_single_filter(
         'LOAN_AMOUNT', 'BETWEEN', 0, 1500)
     assert len(loans) > 0
+
+
+@pytest.mark.slow
+def test_get_loans_by_filter_constraints(mambuapi, unapproved_loan):
+    loan_id = unapproved_loan['id']
+    loan_amount = unapproved_loan['loanAmount']
+    filter_constraints = [
+        dict(filterSelection='ACCOUNT_ID', filterElement='EQUALS',
+             value=loan_id),
+        dict(filterSelection='LOAN_AMOUNT', filterElement='EQUALS',
+             value=loan_amount)]
+    loans = mambuapi.get_loans_by_filter_constraints(filter_constraints)
+    assert loan_id in map(lambda x: x['id'], loans)
 
 
 @pytest.mark.slow

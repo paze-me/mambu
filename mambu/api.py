@@ -69,8 +69,6 @@ class API(object):
         -------
         dict
         """
-        if params:
-            params = params.__dict__
         return self._get(self._url_clients(client_id), params)
 
     def get_client_full_details(self, client_id):
@@ -86,8 +84,7 @@ class API(object):
         -------
         dict
         """
-        return self._get(self._url_clients(client_id),
-                         params=dict(fullDetails=True))
+        return self.get_client(client_id, params=dict(fullDetails=True))
 
     def create_client(self, client, addresses=None, custom_information=None,
                       id_documents=None):
@@ -344,8 +341,6 @@ class API(object):
         -------
         dict
         """
-        # if params:
-        #     params = params.__dict__
         return self._get(self._url_loans(loan_id), params)
 
     def get_loan_full_details(self, loan_id):

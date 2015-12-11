@@ -242,8 +242,8 @@ class API(object):
 
         Parameters
         ----------
-        client_id: int
-            mambu_id for client
+        client_id: str
+            if or encodedKey for client in mambu
         addresses: dict
             the data to use to populate the addresses field
 

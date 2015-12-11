@@ -129,3 +129,10 @@ def test_get_transactions(mambuapi, approved_loan):
     assert int(transactions[0]['amount']) == _fee
     assert transactions[1]['type'] == 'DISBURSMENT'
     assert transactions[1]['amount'] == approved_loan['tranches'][0]['amount']
+
+
+@pytest.mark.slow
+def test_get_loan_full_details(mambuapi, approved_loan):
+    loan_id = approved_loan['id']
+    response = mambuapi.get_loan_full_details(loan_id)
+    assert response['id'] == id

@@ -13,24 +13,8 @@ metadata = data.load_yaml('data.yaml')
 logger = logging.getLogger(__name__)
 
 
-class AbstractDataObject(object):
-    def __init__(self, **kw):
-        for key, val in kw.items():
-            self.__setattr__(key, val)
-
-    def __setattr__(self, key, val):
-        if key not in type(self).fields:
-            raise ValueError(key + " is not an allowed field")
-        self.__dict__[key] = val
-
-    def __getattr__(self, key):
-        return self.__dict__[key]
-
-
 class RequestJSONEncoder(json.JSONEncoder):
     def default(self, o):
-        if isinstance(o, AbstractDataObject):
-            return o.__dict__
         if isinstance(o, (datetime.date, datetime.datetime)):
             return o.isoformat()
         return o
@@ -357,8 +341,8 @@ class API(object):
         -------
         dict
         """
-        if params:
-            params = params.__dict__
+        # if params:
+        #     params = params.__dict__
         return self._get(self._url_loans(loan_id), params)
 
     def get_loan_full_details(self, loan_id):
@@ -373,8 +357,7 @@ class API(object):
         -------
         dict
         """
-        return self.get_loan(loan_id,
-                             params=self.GetLoanParams(fullDetails=True))
+        return self.get_loan(loan_id, params=dict(fullDetails=True))
 
     def get_loans_by_entity(self, entity, entity_id, params=None):
         _entities = ['clients', 'groups']
@@ -846,27 +829,3 @@ class API(object):
         return self._postfix_url(
             self._url_clients(client_id), 'custominformation', custom_field_id,
             index)
-
-    class Client(AbstractDataObject):
-        fields = metadata['clients']['client']
-
-    class GetClientParams(AbstractDataObject):
-        fields = metadata['clients']['parameters']
-
-    class ClientCustomField(AbstractDataObject):
-        fields = metadata['clients']['custom_field']
-
-    class ClientAddress(AbstractDataObject):
-        fields = metadata['clients']['address']
-
-    class ClientIdDocument(AbstractDataObject):
-        fields = metadata['clients']['id_document']
-
-    class GetLoanParams(AbstractDataObject):
-        fields = metadata['loans']['parameters']
-
-    class Loan(AbstractDataObject):
-        fields = metadata['loans']['fields']
-
-    class FilterField(AbstractDataObject):
-        fields = metadata['loans']['loan_account_filter_values']

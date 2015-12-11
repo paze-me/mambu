@@ -788,41 +788,139 @@ class API(object):
         return [self.disburse(loan_id), self.apply_fee(loan_id, fee, date)]
 
     def _url_savings(self, savings_id=None):
-        return self._postfix_url('savings', savings_id)
+        """Return the api url in the form:
 
-    def _url_savings_custom_field(self, savings_id, custom_field_id):
-        return self._postfix_url(
-            self._url_savings(savings_id), 'custominformation', custom_field_id)
-
-    def _url_savings_transactions(self, savings_id, transactions_id=None):
-        return self._postfix_url(
-            'savings', savings_id, 'transactions', transactions_id)
-
-    def _url_loan_products(self, loan_product_id=None):
-        return self._postfix_url('loanproducts', loan_product_id)
-
-    def _url_loans(self, loan_id=None):
-        return self._postfix_url('loans', loan_id)
-
-    def _url_loan_transactions(self, loan_id):
-        return self._postfix_url(self._url_loans(loan_id), 'transactions')
-
-    def _url_clients(self, client_id=None):
-        return self._postfix_url('clients', client_id)
-
-    def _url_client_custom_field(self, client_id, custom_field_id, index=None):
-        """Returns the api url for updating a custom field for a specific client
+        /api/savings/{savings_id}
 
         Parameters
         ----------
-        client_id
-        custom_field_id
-        index
-
+        savings_id: str
+            Optional. Defaults to None. id or encodedKey of savings in mambu
 
         Returns
         -------
+        str
+        """
+        return self._postfix_url('savings', savings_id)
 
+    def _url_savings_custom_field(self, savings_id, custom_field_id):
+        """Return the api url in the form:
+
+        /api/savings/{savings_id}/custominformation/{custom_field_id}
+
+        Parameters
+        ----------
+        savings_id: str
+            id or encodedKey of savings in mambu
+
+        Returns
+        -------
+        str
+        """
+        return self._postfix_url(
+            self._url_savings(savings_id), 'custominformation', custom_field_id)
+
+    def _url_savings_transactions(self, savings_id, transaction_id=None):
+        """Return the api url in the form:
+
+        /api/savings/{savings_id}/custominformation/{custom_field_id}
+
+        Parameters
+        ----------
+        savings_id: str
+            id or encodedKey of savings in mambu
+        transaction_id: str
+            Optional. Defaults to None. id or encodedKey of transaction in mambu
+
+        Returns
+        -------
+        str
+        """
+        return self._postfix_url(
+            'savings', savings_id, 'transactions', transaction_id)
+
+    def _url_loan_products(self, loan_product_id=None):
+        """Return the api url in the form:
+
+        /api/loanproducts/{loan_product_id}
+
+        Parameters
+        ----------
+        loan_product_id: str
+            Optional. Defaults to None. id or encodedKey of savings in mambu
+
+        Returns
+        -------
+        str
+        """
+        return self._postfix_url('loanproducts', loan_product_id)
+
+    def _url_loans(self, loan_id=None):
+        """Return the api url in the form:
+
+        /api/loans/{loan_id}
+
+        Parameters
+        ----------
+        loan_id: str
+            id or encodedKey of savings in mambu
+
+        Returns
+        -------
+        str
+        """
+        return self._postfix_url('loans', loan_id)
+
+    def _url_loan_transactions(self, loan_id):
+        """Return the api url in the form:
+
+        /api/loans/{loan_id}/transactions/{transaction_id}
+
+        Parameters
+        ----------
+        loan_id: str
+            id or encodedKey of savings in mambu
+
+        Returns
+        -------
+        str
+        """
+        return self._postfix_url(self._url_loans(loan_id), 'transactions')
+
+    def _url_clients(self, client_id=None):
+        """Return the api url in the form:
+
+        /api/clients/{client_id}
+
+        Parameters
+        ----------
+        client_id: str
+            Optional.  defaults to None. id or encodedKey of savings in mambu
+
+        Returns
+        -------
+        str
+        """
+        return self._postfix_url('clients', client_id)
+
+    def _url_client_custom_field(self, client_id, custom_field_id, index=None):
+        """Return the api url in the form:
+
+        /api/clients/{client_id}/custominformation/{custom_field_id}/{index}
+
+        Parameters
+        ----------
+        client_id: str
+            id or encodedKey of savings in mambu
+        custom_field_id: str
+            id or encodedKey of savings in mambu
+        index: int
+            Optional.  defaults to None. index of the field set containing the
+            customField
+
+        Returns
+        -------
+        str
         """
         return self._postfix_url(
             self._url_clients(client_id), 'custominformation', custom_field_id,

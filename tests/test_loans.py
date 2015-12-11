@@ -135,4 +135,4 @@ def test_get_transactions(mambuapi, approved_loan):
 def test_get_loan_full_details(mambuapi, approved_loan):
     loan_id = approved_loan['id']
     response = mambuapi.get_loan_full_details(loan_id)
-    assert response['id'] == id
+    assert response['id'] == loan_id

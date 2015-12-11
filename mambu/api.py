@@ -4,12 +4,15 @@ import requests
 import json
 import datetime
 import base64
+import yaml
+import os
 
-
-from tools import datelib, data
+from tools import datelib
 from exception import MambuAPIException
 
-metadata = data.load_yaml('data.yaml')
+
+with open(os.path.join(os.path.dirname(__file__), 'etc/data.yaml'), 'r') as f:
+    metadata = yaml.load(f)
 logger = logging.getLogger(__name__)
 
 

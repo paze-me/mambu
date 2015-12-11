@@ -4,33 +4,20 @@ import requests
 import json
 import datetime
 import base64
+import yaml
+import os
 
-
-from tools import datelib, data
+from tools import datelib
 from exception import MambuAPIException
 
-metadata = data.load_yaml('data.yaml')
+
+with open(os.path.join(os.path.dirname(__file__), 'etc/data.yaml'), 'r') as f:
+    metadata = yaml.load(f)
 logger = logging.getLogger(__name__)
-
-
-class AbstractDataObject(object):
-    def __init__(self, **kw):
-        for key, val in kw.items():
-            self.__setattr__(key, val)
-
-    def __setattr__(self, key, val):
-        if key not in type(self).fields:
-            raise ValueError(key + " is not an allowed field")
-        self.__dict__[key] = val
-
-    def __getattr__(self, key):
-        return self.__dict__[key]
 
 
 class RequestJSONEncoder(json.JSONEncoder):
     def default(self, o):
-        if isinstance(o, AbstractDataObject):
-            return o.__dict__
         if isinstance(o, (datetime.date, datetime.datetime)):
             return o.isoformat()
         return o
@@ -82,8 +69,6 @@ class API(object):
         -------
         dict
         """
-        if params:
-            params = params.__dict__
         return self._get(self._url_clients(client_id), params)
 
     def get_client_full_details(self, client_id):
@@ -99,8 +84,7 @@ class API(object):
         -------
         dict
         """
-        return self._get(self._url_clients(client_id),
-                         params=dict(fullDetails=True))
+        return self.get_client(client_id, params=dict(fullDetails=True))
 
     def create_client(self, client, addresses=None, custom_information=None,
                       id_documents=None):
@@ -258,8 +242,8 @@ class API(object):
 
         Parameters
         ----------
-        client_id: int
-            mambu_id for client
+        client_id: str
+            if or encodedKey for client in mambu
         addresses: dict
             the data to use to populate the addresses field
 
@@ -357,8 +341,6 @@ class API(object):
         -------
         dict
         """
-        if params:
-            params = params.__dict__
         return self._get(self._url_loans(loan_id), params)
 
     def get_loan_full_details(self, loan_id):
@@ -373,8 +355,7 @@ class API(object):
         -------
         dict
         """
-        return self.get_loan(loan_id,
-                             params=self.GetLoanParams(fullDetails=True))
+        return self.get_loan(loan_id, params=dict(fullDetails=True))
 
     def get_loans_by_entity(self, entity, entity_id, params=None):
         _entities = ['clients', 'groups']
@@ -807,66 +788,140 @@ class API(object):
         return [self.disburse(loan_id), self.apply_fee(loan_id, fee, date)]
 
     def _url_savings(self, savings_id=None):
-        return self._postfix_url('savings', savings_id)
+        """Return the api url in the form:
 
-    def _url_savings_custom_field(self, savings_id, custom_field_id):
-        return self._postfix_url(
-            self._url_savings(savings_id), 'custominformation', custom_field_id)
-
-    def _url_savings_transactions(self, savings_id, transactions_id=None):
-        return self._postfix_url(
-            'savings', savings_id, 'transactions', transactions_id)
-
-    def _url_loan_products(self, loan_product_id=None):
-        return self._postfix_url('loanproducts', loan_product_id)
-
-    def _url_loans(self, loan_id=None):
-        return self._postfix_url('loans', loan_id)
-
-    def _url_loan_transactions(self, loan_id):
-        return self._postfix_url(self._url_loans(loan_id), 'transactions')
-
-    def _url_clients(self, client_id=None):
-        return self._postfix_url('clients', client_id)
-
-    def _url_client_custom_field(self, client_id, custom_field_id, index=None):
-        """Returns the api url for updating a custom field for a specific client
+        /api/savings/{savings_id}
 
         Parameters
         ----------
-        client_id
-        custom_field_id
-        index
-
+        savings_id: str
+            Optional. Defaults to None. id or encodedKey of savings in mambu
 
         Returns
         -------
+        str
+        """
+        return self._postfix_url('savings', savings_id)
 
+    def _url_savings_custom_field(self, savings_id, custom_field_id):
+        """Return the api url in the form:
+
+        /api/savings/{savings_id}/custominformation/{custom_field_id}
+
+        Parameters
+        ----------
+        savings_id: str
+            id or encodedKey of savings in mambu
+
+        Returns
+        -------
+        str
+        """
+        return self._postfix_url(
+            self._url_savings(savings_id), 'custominformation', custom_field_id)
+
+    def _url_savings_transactions(self, savings_id, transaction_id=None):
+        """Return the api url in the form:
+
+        /api/savings/{savings_id}/custominformation/{custom_field_id}
+
+        Parameters
+        ----------
+        savings_id: str
+            id or encodedKey of savings in mambu
+        transaction_id: str
+            Optional. Defaults to None. id or encodedKey of transaction in mambu
+
+        Returns
+        -------
+        str
+        """
+        return self._postfix_url(
+            'savings', savings_id, 'transactions', transaction_id)
+
+    def _url_loan_products(self, loan_product_id=None):
+        """Return the api url in the form:
+
+        /api/loanproducts/{loan_product_id}
+
+        Parameters
+        ----------
+        loan_product_id: str
+            Optional. Defaults to None. id or encodedKey of savings in mambu
+
+        Returns
+        -------
+        str
+        """
+        return self._postfix_url('loanproducts', loan_product_id)
+
+    def _url_loans(self, loan_id=None):
+        """Return the api url in the form:
+
+        /api/loans/{loan_id}
+
+        Parameters
+        ----------
+        loan_id: str
+            id or encodedKey of savings in mambu
+
+        Returns
+        -------
+        str
+        """
+        return self._postfix_url('loans', loan_id)
+
+    def _url_loan_transactions(self, loan_id):
+        """Return the api url in the form:
+
+        /api/loans/{loan_id}/transactions/{transaction_id}
+
+        Parameters
+        ----------
+        loan_id: str
+            id or encodedKey of savings in mambu
+
+        Returns
+        -------
+        str
+        """
+        return self._postfix_url(self._url_loans(loan_id), 'transactions')
+
+    def _url_clients(self, client_id=None):
+        """Return the api url in the form:
+
+        /api/clients/{client_id}
+
+        Parameters
+        ----------
+        client_id: str
+            Optional.  defaults to None. id or encodedKey of savings in mambu
+
+        Returns
+        -------
+        str
+        """
+        return self._postfix_url('clients', client_id)
+
+    def _url_client_custom_field(self, client_id, custom_field_id, index=None):
+        """Return the api url in the form:
+
+        /api/clients/{client_id}/custominformation/{custom_field_id}/{index}
+
+        Parameters
+        ----------
+        client_id: str
+            id or encodedKey of savings in mambu
+        custom_field_id: str
+            id or encodedKey of savings in mambu
+        index: int
+            Optional.  defaults to None. index of the field set containing the
+            customField
+
+        Returns
+        -------
+        str
         """
         return self._postfix_url(
             self._url_clients(client_id), 'custominformation', custom_field_id,
             index)
-
-    class Client(AbstractDataObject):
-        fields = metadata['clients']['client']
-
-    class GetClientParams(AbstractDataObject):
-        fields = metadata['clients']['parameters']
-
-    class ClientCustomField(AbstractDataObject):
-        fields = metadata['clients']['custom_field']
-
-    class ClientAddress(AbstractDataObject):
-        fields = metadata['clients']['address']
-
-    class ClientIdDocument(AbstractDataObject):
-        fields = metadata['clients']['id_document']
-
-    class GetLoanParams(AbstractDataObject):
-        fields = metadata['loans']['parameters']
-
-    class Loan(AbstractDataObject):
-        fields = metadata['loans']['fields']
-
-    class FilterField(AbstractDataObject):
-        fields = metadata['loans']['loan_account_filter_values']

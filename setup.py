@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='Mambu',
-    version='0.0.12',
+    version='0.0.13',
     description='Python module for Mambu API',
     author='Paze.me Limited',
     author_email='hansel.dunlop@paze.me',

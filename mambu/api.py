@@ -32,13 +32,18 @@ class API(object):
     def _request(self, method, url, params=None, data=None):
         headers = {'Content-Type': 'application/json'} if data else {}
         data_str = self.json_encoder.encode(data)
+        print self, method, self.base_url, url, params, data_str
         logging.debug("Body: " + data_str)
         response = getattr(requests, method)(
             self.base_url + url, headers=headers, params=params, data=data_str,
             auth=(self.config.username, self.config.password))
         if response.status_code != 200 and response.status_code != 201:
+            try:
+                message = response.json()
+            except Exception:
+                message = {'errorSource': response.content, 'returnCode': 950}
             raise MambuAPIException("Error performing the request",
-                                    response.status_code, response.json())
+                                    response.status_code, message)
         return response.json()
 
     def _get(self, url, params=None, data=None):

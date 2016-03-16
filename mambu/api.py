@@ -761,6 +761,15 @@ class API(object):
         return self._post_loan_transaction(loan_id, dict(
             type='DISBURSMENT', firstRepaymentDate=first_repayment_date))
 
+    def disburse_with_amount(self, loan_id, pay_amount, first_repayment_date=None):
+        if first_repayment_date is not None:
+            first_repayment_date = datelib.mambu_date(first_repayment_date)
+        #  This spelling mistake is intentional and is present in mambu
+        return self._post_loan_transaction(loan_id, dict(
+            type='DISBURSMENT', amount=pay_amount, 
+            firstRepaymentDate=first_repayment_date))
+
+
     def undo_disburse(self, loan_id):
         #  This spelling mistake is intentional and is present in mambu
         return self._post_loan_transaction(

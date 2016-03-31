@@ -2,9 +2,11 @@
 
 from setuptools import setup
 
+__version__ = '0.0.15'
+
 setup(
     name='Mambu',
-    version='0.0.14',
+    version=__version__,
     description='Python module for Mambu API',
     author='Paze.me Limited',
     author_email='hansel.dunlop@paze.me',

@@ -20,7 +20,23 @@ class RequestJSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, (datetime.date, datetime.datetime)):
             return o.isoformat()
+        if isinstance(o, AbstractDataObject):
+            return o.__dict__
         return o
+
+
+class AbstractDataObject(object):
+    def __init__(self, **kw):
+        for key, val in kw.items():
+            self.__setattr__(key, val)
+
+    def __setattr__(self, key, val):
+        if key not in type(self).fields:
+            raise ValueError(key + " is not an allowed field")
+        self.__dict__[key] = val
+
+    def __getattr__(self, key):
+        return self.__dict__[key]
 
 
 class API(object):
@@ -771,7 +787,7 @@ class API(object):
             first_repayment_date = datelib.mambu_date(first_repayment_date)
         #  This spelling mistake is intentional and is present in mambu
         return self._post_loan_transaction(loan_id, dict(
-            type='DISBURSMENT', amount=pay_amount, 
+            type='DISBURSMENT', amount=pay_amount,
             firstRepaymentDate=first_repayment_date))
 
 
@@ -939,3 +955,27 @@ class API(object):
         return self._postfix_url(
             self._url_clients(client_id), 'custominformation', custom_field_id,
             index)
+
+    class Client(AbstractDataObject):
+        fields = metadata['clients']['client']
+
+    class GetClientParams(AbstractDataObject):
+        fields = metadata['clients']['parameters']
+
+    class ClientCustomField(AbstractDataObject):
+        fields = metadata['clients']['custom_field']
+
+    class ClientAddress(AbstractDataObject):
+        fields = metadata['clients']['address']
+
+    class ClientIdDocument(AbstractDataObject):
+        fields = metadata['clients']['id_document']
+
+    class GetLoanParams(AbstractDataObject):
+        fields = metadata['loans']['parameters']
+
+    class Loan(AbstractDataObject):
+        fields = metadata['loans']['fields']
+
+    class FilterField(AbstractDataObject):
+        fields = metadata['loans']['loan_account_filter_values']

@@ -40,7 +40,7 @@ def next_bday(start_date=None):
     return next_n_bday(start_date, 1)
 
 
-def coerce_date(candidate, dayfirst=True):
+def coerce_date(candidate, dayfirst=False):
     result = coerce_datetime(candidate, dayfirst=dayfirst)
     try:
         result = result.date()
@@ -49,7 +49,7 @@ def coerce_date(candidate, dayfirst=True):
     return result
 
 
-def coerce_datetime(candidate, dayfirst=True):
+def coerce_datetime(candidate, dayfirst=False):
     """Coerce the candidate into a datetime.datetime if possible
 
     Parameters

@@ -822,7 +822,7 @@ class API(object):
         # return [self.disburse(loan_id, ), self.apply_fee(loan_id, fee, date)]
         ### POST HACK CODE, delete this
 
-        disburse_result = self.disburse(loan_id, date.today())
+        disburse_result = self.disburse(loan_id, datetime.date.today())
         fee_application_result = self.apply_fee(loan_id, fee, date)
 
         return [disburse_result, fee_application_result]

@@ -815,19 +815,7 @@ class API(object):
         -------
         dict
         """
-        ### THIS IS A HACKY WORKAROUND FOR A MAMBU BUG IN 4.2
-        ### THIS SHOULD BE REVERTED, self.disburse should just take the loan_id)
-
-        ### PRE HACK CODE, USE THIS
-        # return [self.disburse(loan_id, ), self.apply_fee(loan_id, fee, date)]
-        ### POST HACK CODE, delete this
-
-        disburse_result = self.disburse(loan_id, datetime.date.today())
-        fee_application_result = self.apply_fee(loan_id, fee, date)
-
-        return [disburse_result, fee_application_result]
-        ### HACK ENDS
-
+        return [self.disburse(loan_id, ), self.apply_fee(loan_id, fee, date)]
 
     def _url_savings(self, savings_id=None):
         """Return the api url in the form:

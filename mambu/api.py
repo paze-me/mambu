@@ -284,7 +284,7 @@ class API(object):
         -------
         dict
         """
-        return self._get(self._postfix_url(document_id))
+        return self._get(self._postfix_url('documents', document_id))
 
     def create_attachment(self, document_holder_key, document_holder_type, name,
                           document_type, document_content):
